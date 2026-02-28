@@ -5,9 +5,9 @@ import os
 import tempfile
 
 import httpx
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, Form, HTTPException, UploadFile, File
 
-from config import PROFILES_DIR, UPLOADS_DIR
+from config import PROFILES_DIR
 from prompts import build_system_prompt
 from routers.profiles import read_profile
 from services.clients import get_mistral_client, get_elevenlabs_key
@@ -18,6 +18,9 @@ from services.tts import synthesize_speech
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+# In-memory session store: session_id → list of {role, content} message dicts
+_sessions: dict[str, list[dict]] = {}
 
 
 @router.post("/profile/{profile_id}/clone-voice")
@@ -81,11 +84,16 @@ def voice_status(profile_id: str):
 
 
 @router.post("/profile/{profile_id}/chat")
-async def voice_chat(profile_id: str, file: UploadFile = File(...)):
+async def voice_chat(
+    profile_id: str,
+    file: UploadFile = File(...),
+    session_id: str = Form(...),
+):
     """Full voice conversation: STT → Mistral completion → ElevenLabs TTS.
 
-    Accepts an audio file, returns JSON with transcription, reply text,
-    and base64-encoded audio of the reply.
+    Accepts an audio file and a session_id, returns JSON with transcription,
+    reply text, and base64-encoded audio of the reply. Conversation history
+    is accumulated server-side under the given session_id.
     """
     profile_data = read_profile(profile_id)
 
@@ -113,9 +121,15 @@ async def voice_chat(profile_id: str, file: UploadFile = File(...)):
                 "audio": None,
             }
 
-        # 2. Mistral completion
+        # 2. Mistral completion — with full conversation history
+        history = _sessions.get(session_id, [])
+        history.append({"role": "user", "content": transcription_text})
+
         system_prompt = build_system_prompt(profile_data)
-        reply_text = get_chat_reply(client, system_prompt, transcription_text)
+        reply_text = get_chat_reply(client, system_prompt, history)
+
+        history.append({"role": "assistant", "content": reply_text})
+        _sessions[session_id] = history
 
         # 3. TTS — synthesize reply
         voice_id = profile_data.get("voice_id")
@@ -142,3 +156,10 @@ async def voice_chat(profile_id: str, file: UploadFile = File(...)):
             os.unlink(tmp.name)
         except OSError:
             pass
+
+
+@router.delete("/profile/{profile_id}/chat/{session_id}")
+def clear_session(profile_id: str, session_id: str):
+    """Clear the conversation history for a session."""
+    _sessions.pop(session_id, None)
+    return {"status": "cleared"}
