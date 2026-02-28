@@ -1,0 +1,28 @@
+name: Ping Website
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Every 5 minutes
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Ping website
+        run: |
+          python -c "
+          import requests
+          from datetime import datetime
+          try:
+              r = requests.get('https://tzikos-website.onrender.com')
+              print(f'{datetime.now()} - Status: {r.status_code}')
+          except Exception as e:
+              print(f'{datetime.now()} - Error: {e}')
+          "
