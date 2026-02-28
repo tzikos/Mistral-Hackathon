@@ -129,14 +129,13 @@ async def voice_chat(
         history.append({"role": "assistant", "content": reply_text})
         _sessions[session_id] = history
 
-        # 3. TTS — synthesize reply
-        voice_id = profile_data.get("voice_id")
+        # 3. TTS — synthesize reply (falls back to DEFAULT_VOICE_ID if no clone)
+        voice_id = profile_data.get("voice_id") or None
         audio_b64 = None
 
-        if voice_id:
-            audio_bytes_out = await synthesize_speech(voice_id, reply_text)
-            if audio_bytes_out:
-                audio_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
+        audio_bytes_out = await synthesize_speech(reply_text, voice_id)
+        if audio_bytes_out:
+            audio_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
 
         return {
             "transcription": transcription_text,
