@@ -18,7 +18,10 @@ export async function uploadFile(
   }
 
   const data = await res.json();
-  return data.url as string;
+  // The backend returns a path like "/uploads/profileId/file.jpg"
+  // Prepend the API base so it resolves to the correct backend URL
+  const url = data.url as string;
+  return url.startsWith("http") ? url : apiUrl(url);
 }
 
 export async function parseCv(

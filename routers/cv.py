@@ -28,7 +28,7 @@ async def parse_cv(profile_id: str, file: UploadFile = File(...)):
     filename = file.filename or "cv.pdf"
     dest = user_dir / filename
     dest.write_bytes(contents)
-    cv_url = f"/api/uploads/{profile_id}/{filename}"
+    cv_url = f"/uploads/{profile_id}/{filename}"
 
     client = get_mistral_client()
 

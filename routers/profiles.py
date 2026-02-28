@@ -73,7 +73,7 @@ async def upload_file(profile_id: str, file: UploadFile = File(...)):
     dest = user_dir / file.filename
     contents = await file.read()
     dest.write_bytes(contents)
-    return {"url": f"/api/uploads/{profile_id}/{file.filename}"}
+    return {"url": f"/uploads/{profile_id}/{file.filename}"}
 
 
 @router.get("/uploads/{profile_id}/{filename}")
