@@ -46,11 +46,10 @@ def create_profile(profile: Profile):
 
 @router.put("/profile/{profile_id}")
 def update_profile(profile_id: str, body: dict):
-    """Update an existing profile (partial merge)."""
+    """Update an existing profile (partial merge), or create if missing."""
+    PROFILES_DIR.mkdir(exist_ok=True)
     path = PROFILES_DIR / f"{profile_id}.json"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Profile '{profile_id}' not found")
-    existing = json.loads(path.read_text())
+    existing = json.loads(path.read_text()) if path.exists() else {"id": profile_id}
 
     def _deep_merge(base: dict, patch: dict) -> dict:
         for key, value in patch.items():
