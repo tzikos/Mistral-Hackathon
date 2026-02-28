@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mistral Voice POC - Clean</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #transcription, #response {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            min-height: 60px;
+            text-align: left;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        audio {
+            margin: 15px 0;
+            width: 100%;
+        }
+        .status {
+            margin: 10px 0;
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            color: red;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mistral Voice API Test</h1>
+    
+    <div class="status" id="status">Ready to record</div>
+    <div class="error" id="error"></div>
+    
+    <div>
+        <button id="testBtn">Test CORS Connection</button>
+        <button id="recordBtn">Start Recording</button>
+        <button id="stopBtn" disabled>Stop Recording</button>
+        <button id="playBtn" disabled>Play Response</button>
+    </div>
+    
+    <div id="transcription">Your transcription will appear here...</div>
+    <div id="response">Response will appear here...</div>
+    
+    <audio id="audioPlayback" controls></audio>
+    
+    <script>
+        // Initialize elements
+        const testBtn = document.getElementById('testBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const playBtn = document.getElementById('playBtn');
+        const transcriptionDiv = document.getElementById('transcription');
+        const responseDiv = document.getElementById('response');
+        const audioPlayback = document.getElementById('audioPlayback');
+        const statusDiv = document.getElementById('status');
+        const errorDiv = document.getElementById('error');
+        
+        let mediaRecorder;
+        let audioChunks = [];
+        
+        // Event listeners
+        testBtn.addEventListener('click', testConnection);
+        recordBtn.addEventListener('click', startRecording);
+        stopBtn.addEventListener('click', stopRecording);
+        playBtn.addEventListener('click', playResponse);
+        
+        // Test CORS connection
+        async function testConnection() {
+            try {
+                errorDiv.textContent = '';
+                statusDiv.textContent = 'Testing CORS connection...';
+                
+                const response = await fetch('http://localhost:8000/api/test', {
+                    method: 'GET',
+                    mode: 'cors' // Proper JS comment
+                });
+                
+                console.log('Test response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Test failed: ${response.status} - ${errorText}`);
+                }
+                
+                const result = await response.json();
+                statusDiv.textContent = `CORS working! ${result.message}`;
+                console.log('CORS test successful:', result);
+                
+            } catch (error) {
+                errorDiv.textContent = `CORS test failed: ${error.message}`;
+                statusDiv.textContent = 'CORS connection failed';
+                console.error('CORS test error:', error);
+            }
+        }
+        
+        // Start recording
+        async function startRecording() {
+            try {
+                errorDiv.textContent = '';
+                statusDiv.textContent = 'Accessing microphone...';
+                
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                
+                mediaRecorder.start();
+                recordBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusDiv.textContent = 'Recording... (click Stop when finished)';
+                
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+                
+                mediaRecorder.onstop = async () => {
+                    statusDiv.textContent = 'Processing audio...';
+                    
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    const formData = new FormData();
+                    formData.append('audio', audioBlob, 'recording.wav');
+                    
+                    try {
+                        statusDiv.textContent = 'Sending to Mistral API...';
+                        const response = await fetch('http://localhost:8000/api/voice', {
+                            method: 'POST',
+                            body: formData,
+                            mode: 'cors', // Proper JS comment
+                            headers: {
+                                'Accept': 'application/json',
+                            }
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            console.error('Server error details:', errorText);
+                            throw new Error(`Server error: ${response.status} - ${errorText}`);
+                        }
+                        
+                        const result = await response.json();
+                        
+                        if (result.error) {
+                            throw new Error(result.error);
+                        }
+                        
+                        transcriptionDiv.textContent = result.transcription || 'No transcription received';
+                        responseDiv.textContent = result.response || 'No response received';
+                        
+                        if (result.audio && result.audio.data) {
+                            const audioBlob = new Blob([new Uint8Array(result.audio.data)], { type: 'audio/wav' });
+                            audioPlayback.src = URL.createObjectURL(audioBlob);
+                            playBtn.disabled = false;
+                            statusDiv.textContent = 'Ready - click Play Response to hear the answer';
+                        } else {
+                            statusDiv.textContent = 'Response received (no audio)';
+                        }
+                        
+                    } catch (error) {
+                        errorDiv.textContent = `Error: ${error.message}`;
+                        statusDiv.textContent = 'Error occurred';
+                        console.error('Error:', error);
+                    }
+                };
+            } catch (error) {
+                errorDiv.textContent = `Error accessing microphone: ${error.message}`;
+                statusDiv.textContent = 'Microphone access denied';
+                console.error('Microphone error:', error);
+            }
+        }
+        
+        // Stop recording
+        function stopRecording() {
+            mediaRecorder.stop();
+            recordBtn.disabled = false;
+            stopBtn.disabled = true;
+            statusDiv.textContent = 'Stopped recording - processing...';
+        }
+        
+        // Play response
+        function playResponse() {
+            audioPlayback.play();
+            statusDiv.textContent = 'Playing response...';
+        }
+        
+        // Update status when audio ends
+        audioPlayback.onended = () => {
+            statusDiv.textContent = 'Ready to record again';
+        };
+        
+        console.log('Frontend initialized successfully');
+    </script>
+</body>
+</html>
