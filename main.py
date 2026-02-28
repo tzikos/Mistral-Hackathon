@@ -204,21 +204,23 @@ async def parse_cv(profile_id: str, file: UploadFile = File(...)):
     client = get_mistral_client()
 
     try:
-        # Upload to Mistral Files API
-        from mistralai import FileChunk
-
-        uploaded = client.files.upload(
-            file=FileChunk(file_name=filename, data=contents),
+        # Upload file to get file_id for OCR
+        from mistralai.models import OCRResponse
+        
+        # Upload the file to Mistral's file storage
+        from mistralai.models.file import File as MistralFile
+        
+        file_obj = MistralFile(content=contents, file_name=filename)
+        uploaded_file = client.files.upload(
+            file=file_obj,
             purpose="ocr",
         )
-        file_id = uploaded.id
+        file_id = uploaded_file.id
 
-        # Run OCR
-        from mistralai.models import OCRResponse
-
+        # Run OCR with file_id
         ocr_response: OCRResponse = client.ocr.process(
             model="mistral-ocr-latest",
-            document={"type": "file_id", "file_id": file_id},
+            document={"type": "file", "file_id": file_id},
         )
 
         # Concatenate all pages' markdown
@@ -231,11 +233,11 @@ async def parse_cv(profile_id: str, file: UploadFile = File(...)):
 
         # Parse with chat
         chat_response = client.chat.parse(
+            ParsedCVProfile,
             model="mistral-large-latest",
             messages=[
                 {"role": "user", "content": CV_PARSE_PROMPT.format(cv_text=cv_text)}
             ],
-            response_format=ParsedCVProfile,
         )
 
         parsed: ParsedCVProfile = chat_response.choices[0].message.parsed
