@@ -36,6 +36,21 @@ const Auth = () => {
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/3 rounded-full blur-3xl animate-pulse delay-1000" />
       </div>
 
+      <div className="w-full max-w-md text-center mb-8">
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-2">
+          <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            AskMe
+          </span>
+          <span className="text-muted-foreground/60">.</span>
+          <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+            stral
+          </span>
+        </h1>
+        <p className="text-muted-foreground text-sm">
+          Your AI-powered professional profile
+        </p>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl gradient-text">Sign In</CardTitle>
