@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mic, MicOff, Volume2, Loader2, User } from "lucide-react";
+import { ArrowLeft, Mic, MicOff, Volume2, Loader2, User, RotateCcw } from "lucide-react";
 import type { Profile } from "@/types/profile";
 import { apiUrl } from "@/lib/api";
+
+function getOrCreateSessionId(profileId: string): string {
+  const key = `session_id_${profileId}`;
+  const existing = localStorage.getItem(key);
+  if (existing) return existing;
+  const id = crypto.randomUUID();
+  localStorage.setItem(key, id);
+  return id;
+}
 
 type Status = "idle" | "recording" | "processing" | "speaking";
 
@@ -24,11 +33,18 @@ const Agent = () => {
   const [status, setStatus] = useState<Status>("idle");
   const [chat, setChat] = useState<ChatEntry[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState("");
+  const sessionIdRef = useRef<string>("");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+
+  // Initialise session
+  useEffect(() => {
+    if (!profileId) return;
+    sessionIdRef.current = getOrCreateSessionId(profileId);
+  }, [profileId]);
 
   // Load profile
   useEffect(() => {
@@ -128,6 +144,7 @@ const Agent = () => {
     try {
       const formData = new FormData();
       formData.append("file", audioBlob, "recording.webm");
+      formData.append("session_id", sessionIdRef.current);
 
       const res = await fetch(apiUrl(`/profile/${profileId}/chat`), {
         method: "POST",
@@ -186,6 +203,22 @@ const Agent = () => {
     }
     setStatus("idle");
   };
+
+  const newConversation = useCallback(() => {
+    if (!profileId) return;
+    // Clear server-side history
+    fetch(apiUrl(`/profile/${profileId}/chat/${sessionIdRef.current}`), {
+      method: "DELETE",
+    }).catch(() => {});
+    // Generate a fresh session id
+    const id = crypto.randomUUID();
+    localStorage.setItem(`session_id_${profileId}`, id);
+    sessionIdRef.current = id;
+    // Reset UI
+    setChat([]);
+    setError(null);
+    stopAudio();
+  }, [profileId]);
 
   // Keyboard handlers
   useEffect(() => {
@@ -275,6 +308,16 @@ const Agent = () => {
           <span className="font-medium text-sm">
             Talk to {profile?.name || "AI"}
           </span>
+          {chat.length > 0 && (
+            <button
+              onClick={newConversation}
+              title="New conversation"
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition px-2 py-1 rounded hover:bg-white/10"
+            >
+              <RotateCcw size={13} />
+              <span className="hidden sm:inline">New chat</span>
+            </button>
+          )}
         </div>
       </header>
 
