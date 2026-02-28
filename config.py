@@ -2,6 +2,5 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).parent
 
-PROFILES_DIR = BASE_DIR / "profiles"
-USERS_DIR = BASE_DIR / "users"
+# Binary file uploads (avatars, CVs) are still served from disk
 UPLOADS_DIR = BASE_DIR / "uploads"
