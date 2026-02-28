@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, MicOff, Volume2, Loader2, User, RotateCcw } from "lucide-react";
 import type { Profile } from "@/types/profile";
 import { apiUrl } from "@/lib/api";
+import Logo from "@/components/Logo";
 
 function getOrCreateSessionId(profileId: string): string {
   const key = `session_id_${profileId}`;
@@ -286,13 +287,16 @@ const Agent = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10">
-        <button
-          onClick={() => navigate(`/${profileId}`)}
-          className="flex items-center gap-2 text-gray-400 hover:text-white transition"
-        >
-          <ArrowLeft size={18} />
-          <span className="text-sm hidden sm:inline">Back to Profile</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(`/${profileId}`)}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm hidden sm:inline">Back to Profile</span>
+          </button>
+          <Logo size="sm" className="hidden sm:inline" />
+        </div>
         <div className="flex items-center gap-3">
           {profile?.avatar ? (
             <img

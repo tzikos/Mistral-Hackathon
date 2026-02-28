@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { uploadFile, parseCv, cloneVoice } from "@/lib/upload";
 import { useAuth } from "@/contexts/AuthContext";
+import Logo from "@/components/Logo";
 import {
   Database,
   Code,
@@ -401,36 +402,37 @@ function CvProgressOverlay() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const radius = 54;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
+  // Filled pie chart calculation
+  const r = 54;
+  const cx = 60;
+  const cy = 60;
+  const angle = (progress / 100) * 360;
+  const angleRad = (angle * Math.PI) / 180;
+  const endX = cx + r * Math.sin(angleRad);
+  const endY = cy - r * Math.cos(angleRad);
+  const largeArc = angle > 180 ? 1 : 0;
+
+  let piePath = "";
+  if (progress >= 100) {
+    // Full circle as closed path
+    piePath = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
+  } else if (progress > 0) {
+    piePath = `M ${cx} ${cy} L ${cx} ${cy - r} A ${r} ${r} 0 ${largeArc} 1 ${endX} ${endY} Z`;
+  }
 
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="relative w-36 h-36 mb-6">
-        <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+        <svg className="w-full h-full" viewBox="0 0 120 120">
           {/* Background circle */}
-          <circle
-            cx="60" cy="60" r={radius}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="8"
-            className="text-muted-foreground/20"
-          />
-          {/* Progress circle */}
-          <circle
-            cx="60" cy="60" r={radius}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray={circumference}
-            strokeDashoffset={offset}
-            className="text-primary transition-[stroke-dashoffset] duration-300 ease-out"
-          />
+          <circle cx={cx} cy={cy} r={r} fill="#f3f4f6" />
+          {/* Filled pie slice */}
+          {piePath && <path d={piePath} fill="#FA520F" />}
+          {/* Inner white circle for donut effect */}
+          <circle cx={cx} cy={cy} r="38" fill="white" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold tabular-nums">
+          <span className="text-2xl font-bold tabular-nums" style={{ color: '#FA520F' }}>
             {Math.round(progress)}%
           </span>
         </div>
@@ -615,7 +617,8 @@ const CreateProfile = () => {
         body: JSON.stringify(profile),
       });
       if (!res.ok) throw new Error("Save failed");
-      navigate(`/${activeProfileId}`);
+      // After creating a new profile go to search; after editing go to the profile page
+      navigate(isCreateMode ? "/search" : `/${activeProfileId}`);
     } catch {
       alert("Failed to save profile");
     } finally {
@@ -669,9 +672,13 @@ const CreateProfile = () => {
       <div className="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border-b">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-semibold">
-              {isCreateMode ? "Create Profile" : "Edit Profile"}
-            </h1>
+            <div className="flex items-center gap-3">
+              <Logo size="sm" />
+              <span className="text-muted-foreground/60 text-sm hidden sm:inline">·</span>
+              <h1 className="text-sm font-medium text-muted-foreground hidden sm:inline">
+                {isCreateMode ? "Create Profile" : "Edit Profile"}
+              </h1>
+            </div>
             <span className="text-sm text-muted-foreground">
               Step {step + 1} of {STEPS.length}
             </span>
@@ -885,9 +892,9 @@ function StepAccount({
       </div>
 
       {/* CV upload section */}
-      <div className="border rounded-lg p-5 space-y-4 bg-gray-50/50 dark:bg-gray-800/30">
+      <div className="border-2 rounded-lg p-5 space-y-4" style={{ borderColor: '#FA520F', backgroundColor: '#FA520F0D' }}>
         <div className="flex items-start gap-3">
-          <FileUp size={20} className="text-primary mt-0.5 shrink-0" />
+          <FileUp size={20} className="mt-0.5 shrink-0" style={{ color: '#FA520F' }} />
           <div>
             <h3 className="font-semibold text-sm">
               Speed up profile creation
@@ -912,15 +919,15 @@ function StepAccount({
             }}
           />
           <div className="flex items-center gap-3">
-            <Button
+            <button
               type="button"
-              variant="outline"
-              size="sm"
               onClick={() => cvInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#FA520F' }}
             >
-              <Upload size={14} className="mr-1.5" />
+              <Upload size={14} />
               {cvFile ? "Change File" : "Choose PDF"}
-            </Button>
+            </button>
             {cvFile && (
               <span className="text-sm text-muted-foreground truncate max-w-[200px]">
                 {cvFile.name}
@@ -949,7 +956,7 @@ function StepAccount({
             className="flex items-center gap-2 text-sm hover:text-foreground transition-colors"
           >
             {autoFillFromCv ? (
-              <CheckSquare size={18} className="text-primary" />
+              <CheckSquare size={18} style={{ color: '#FA520F' }} />
             ) : (
               <Square size={18} className="text-muted-foreground" />
             )}

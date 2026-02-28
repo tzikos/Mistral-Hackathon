@@ -1,5 +1,4 @@
 import base64
-import json
 import logging
 import os
 import tempfile
@@ -7,7 +6,7 @@ import tempfile
 import httpx
 from fastapi import APIRouter, Form, HTTPException, UploadFile, File
 
-from config import PROFILES_DIR
+from db import db_get_profile, db_upsert_profile, db_profile_exists
 from prompts import build_system_prompt
 from routers.profiles import read_profile
 from services.clients import get_mistral_client, get_elevenlabs_key
@@ -26,8 +25,7 @@ _sessions: dict[str, list[dict]] = {}
 @router.post("/profile/{profile_id}/clone-voice")
 async def clone_voice(profile_id: str, file: UploadFile = File(...)):
     """Upload a voice sample and create a cloned voice via ElevenLabs."""
-    profile_path = PROFILES_DIR / f"{profile_id}.json"
-    if not profile_path.exists():
+    if not db_profile_exists(profile_id):
         raise HTTPException(status_code=404, detail=f"Profile '{profile_id}' not found")
 
     contents = await file.read()
@@ -62,9 +60,9 @@ async def clone_voice(profile_id: str, file: UploadFile = File(...)):
         if not voice_id:
             raise HTTPException(status_code=502, detail="No voice_id returned")
 
-        profile_data = json.loads(profile_path.read_text())
+        profile_data = db_get_profile(profile_id)
         profile_data["voice_id"] = voice_id
-        profile_path.write_text(json.dumps(profile_data, indent=2))
+        db_upsert_profile(profile_id, profile_data)
 
         return {"voice_id": voice_id, "status": "cloned"}
 
@@ -131,14 +129,13 @@ async def voice_chat(
         history.append({"role": "assistant", "content": reply_text})
         _sessions[session_id] = history
 
-        # 3. TTS — synthesize reply
-        voice_id = profile_data.get("voice_id")
+        # 3. TTS — synthesize reply (falls back to DEFAULT_VOICE_ID if no clone)
+        voice_id = profile_data.get("voice_id") or None
         audio_b64 = None
 
-        if voice_id:
-            audio_bytes_out = await synthesize_speech(voice_id, reply_text)
-            if audio_bytes_out:
-                audio_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
+        audio_bytes_out = await synthesize_speech(reply_text, voice_id)
+        if audio_bytes_out:
+            audio_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
 
         return {
             "transcription": transcription_text,

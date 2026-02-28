@@ -1,8 +1,10 @@
+import React from "react";
 import { Toaster as SonnerToaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Agent from "./pages/Agent";
 import Auth from "./pages/Auth";
@@ -11,10 +13,20 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const RootRedirect = () => {
-  // Always show the login page at /
-  return <Auth />;
-};
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -23,7 +35,16 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<RootRedirect />} />
+            <Route path="/" element={<Auth />} />
+            <Route path="/auth" element={<Navigate to="/" replace />} />
+            <Route
+              path="/search"
+              element={
+                <ProtectedRoute>
+                  <Landing />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/create" element={<CreateProfile />} />
             <Route path="/:profileId" element={<Index />} />
             <Route path="/:profileId/edit" element={<CreateProfile />} />

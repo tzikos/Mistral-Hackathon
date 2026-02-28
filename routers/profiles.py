@@ -1,55 +1,60 @@
-import json
-
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 
-from config import PROFILES_DIR, UPLOADS_DIR
+from config import UPLOADS_DIR
+from db import (
+    db_list_profiles,
+    db_get_profile,
+    db_create_profile,
+    db_upsert_profile,
+    db_get_all_profiles_raw,
+)
+from services.search import search_profiles
 from models import Profile
 
 router = APIRouter()
 
 
 def read_profile(profile_id: str) -> dict:
-    path = PROFILES_DIR / f"{profile_id}.json"
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Profile '{profile_id}' not found")
-    return json.loads(path.read_text())
+    """Shared helper used by other routers."""
+    return db_get_profile(profile_id)
 
 
 @router.get("/profiles")
 def list_profiles():
     """List all available profiles (id + name only)."""
-    PROFILES_DIR.mkdir(exist_ok=True)
-    profiles = []
-    for path in PROFILES_DIR.glob("*.json"):
-        data = json.loads(path.read_text())
-        profiles.append({"id": data["id"], "name": data["name"]})
-    return profiles
+    return db_list_profiles()
+
+
+@router.get("/profiles/search")
+def search_profiles_endpoint(q: str = ""):
+    """Search profiles by free text. Returns ranked lightweight profile cards."""
+    if not q.strip():
+        return []
+    rows = db_get_all_profiles_raw()
+    return search_profiles(rows, q)
 
 
 @router.get("/profile/{profile_id}")
 def get_profile(profile_id: str):
     """Return full profile JSON."""
-    return read_profile(profile_id)
+    return db_get_profile(profile_id)
 
 
 @router.post("/profile", status_code=201)
 def create_profile(profile: Profile):
     """Create a new profile."""
-    PROFILES_DIR.mkdir(exist_ok=True)
-    path = PROFILES_DIR / f"{profile.id}.json"
-    if path.exists():
-        raise HTTPException(status_code=409, detail=f"Profile '{profile.id}' already exists")
-    path.write_text(profile.model_dump_json(indent=2))
+    db_create_profile(profile.id, profile.model_dump())
     return {"id": profile.id, "status": "created"}
 
 
 @router.put("/profile/{profile_id}")
 def update_profile(profile_id: str, body: dict):
     """Update an existing profile (partial merge), or create if missing."""
-    PROFILES_DIR.mkdir(exist_ok=True)
-    path = PROFILES_DIR / f"{profile_id}.json"
-    existing = json.loads(path.read_text()) if path.exists() else {"id": profile_id}
+    try:
+        existing = db_get_profile(profile_id)
+    except HTTPException:
+        existing = {"id": profile_id}
 
     def _deep_merge(base: dict, patch: dict) -> dict:
         for key, value in patch.items():
@@ -61,7 +66,7 @@ def update_profile(profile_id: str, body: dict):
 
     merged = _deep_merge(existing, body)
     merged["id"] = profile_id  # prevent id change
-    path.write_text(json.dumps(merged, indent=2))
+    db_upsert_profile(profile_id, merged)
     return {"id": profile_id, "status": "updated"}
 
 
