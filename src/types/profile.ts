@@ -56,6 +56,7 @@ export interface Profile {
   badge: string;
   description: string;
   avatar?: string;
+  voice_id?: string;
   about: AboutSection;
   portfolio: PortfolioSection;
   links: Links;

@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -8,6 +8,7 @@ import Portfolio from "@/components/Portfolio";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 import { Profile } from "@/types/profile";
+import { MessageCircle } from "lucide-react";
 
 const Index = () => {
   const { profileId } = useParams<{ profileId: string }>();
@@ -95,11 +96,23 @@ const Index = () => {
         <Hero profile={profile} />
         <About profile={profile} />
         <Portfolio profile={profile} />
-        <Contact />
+        <Contact profile={profile} />
       </main>
       <Footer />
+
+      {/* Floating "Talk to" button */}
+      {profile.voice_id && (
+        <Link
+          to={`/${profileId}/agent`}
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:shadow-xl transition-all duration-200 group"
+        >
+          <MessageCircle size={20} className="group-hover:animate-bounce" />
+          <span className="font-medium text-sm">Talk to {profile.name}</span>
+        </Link>
+      )}
     </div>
   );
 };
 
 export default Index;
+

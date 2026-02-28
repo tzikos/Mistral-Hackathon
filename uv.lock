@@ -419,6 +419,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "bcrypt" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "mistralai" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -431,6 +432,7 @@ dependencies = [
 requires-dist = [
     { name = "bcrypt", specifier = ">=4.0.0" },
     { name = "fastapi", specifier = ">=0.111.0" },
+    { name = "httpx", specifier = ">=0.27.0" },
     { name = "mistralai", specifier = ">=1.12.4" },
     { name = "pydantic", specifier = ">=2.7.1" },
     { name = "python-dotenv", specifier = ">=1.2.1" },

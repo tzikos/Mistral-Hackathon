@@ -39,3 +39,26 @@ export async function parseCv(
 
   return res.json();
 }
+
+export async function cloneVoice(
+  profileId: string,
+  audioBlob: Blob
+): Promise<{ voice_id: string; status: string }> {
+  const formData = new FormData();
+  formData.append("file", audioBlob, "voice-sample.wav");
+
+  const res = await fetch(`/api/profile/${profileId}/clone-voice`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const err = await res
+      .json()
+      .catch(() => ({ detail: "Voice cloning failed" }));
+    throw new Error(err.detail || "Voice cloning failed");
+  }
+
+  return res.json();
+}
+

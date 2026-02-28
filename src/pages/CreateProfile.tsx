@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { uploadFile, parseCv } from "@/lib/upload";
+import { uploadFile, parseCv, cloneVoice } from "@/lib/upload";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Database,
@@ -50,6 +50,10 @@ import {
   FileUp,
   CheckSquare,
   Square,
+  Mic,
+  MicOff,
+  Volume2,
+  CheckCircle2,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -118,8 +122,8 @@ const COLOR_OPTIONS: { value: string; hex: string; label: string }[] = [
   { value: "rose", hex: "#f43f5e", label: "Rose" },
 ];
 
-const EDIT_STEPS = ["Basics", "About", "Portfolio", "Links & Finish"];
-const CREATE_STEPS = ["Account", "Basics", "About", "Portfolio", "Links & Finish"];
+const EDIT_STEPS = ["Basics", "About", "Portfolio", "Photo & Voice", "Links & Finish"];
+const CREATE_STEPS = ["Account", "Basics", "About", "Portfolio", "Photo & Voice", "Links & Finish"];
 
 const emptyProfile: Profile = {
   id: "",
@@ -589,18 +593,16 @@ const CreateProfile = () => {
                 className="flex-1 text-center"
               >
                 <div
-                  className={`h-2 rounded-full mb-1 transition-colors ${
-                    i <= step
+                  className={`h-2 rounded-full mb-1 transition-colors ${i <= step
                       ? "bg-primary"
                       : "bg-gray-200 dark:bg-gray-700"
-                  }`}
+                    }`}
                 />
                 <span
-                  className={`text-xs ${
-                    i === step
+                  className={`text-xs ${i === step
                       ? "text-primary font-medium"
                       : "text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {label}
                 </span>
@@ -648,6 +650,13 @@ const CreateProfile = () => {
           />
         )}
         {contentStep === 3 && (
+          <StepVoice
+            profile={profile}
+            profileId={activeProfileId || ""}
+            updateField={updateField}
+          />
+        )}
+        {contentStep === 4 && (
           <StepLinks
             links={profile.links}
             profileId={activeProfileId || ""}
@@ -678,8 +687,8 @@ const CreateProfile = () => {
               {isCreateMode && step === 0 && registering
                 ? "Creating account..."
                 : isCreateMode && step === 0 && parsingCv
-                ? (<><Loader2 size={16} className="mr-1.5 animate-spin" />Analyzing CV...</>)
-                : "Next"}
+                  ? (<><Loader2 size={16} className="mr-1.5 animate-spin" />Analyzing CV...</>)
+                  : "Next"}
               {!(isCreateMode && step === 0 && (registering || parsingCv)) && (
                 <ChevronRight size={16} className="ml-1" />
               )}
@@ -1110,11 +1119,10 @@ function StepAbout({
                           onClick={() =>
                             updateExpertiseItem(i, "icon", opt.value)
                           }
-                          className={`w-9 h-9 flex items-center justify-center rounded-md transition-all ${
-                            exp.icon === opt.value
+                          className={`w-9 h-9 flex items-center justify-center rounded-md transition-all ${exp.icon === opt.value
                               ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-1"
                               : "hover:bg-gray-200 dark:hover:bg-gray-700 text-muted-foreground hover:text-foreground"
-                          }`}
+                            }`}
                         >
                           <opt.Icon size={18} />
                         </button>
@@ -1137,11 +1145,10 @@ function StepAbout({
                           onClick={() =>
                             updateExpertiseItem(i, "color", c.value)
                           }
-                          className={`w-8 h-8 rounded-full border-2 transition-all ${
-                            exp.color === c.value
+                          className={`w-8 h-8 rounded-full border-2 transition-all ${exp.color === c.value
                               ? "border-foreground scale-110 ring-2 ring-offset-1 ring-foreground/30"
                               : "border-transparent hover:scale-105"
-                          }`}
+                            }`}
                           style={{ backgroundColor: c.hex }}
                         />
                       </TooltipTrigger>
@@ -1361,11 +1368,10 @@ function StepPortfolio({
           <button
             key={key}
             onClick={() => setTab(key)}
-            className={`px-4 py-2 rounded-t-md text-sm font-medium transition-colors ${
-              tab === key
+            className={`px-4 py-2 rounded-t-md text-sm font-medium transition-colors ${tab === key
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground"
-            }`}
+              }`}
           >
             {tabLabels[key]}
           </button>
@@ -1458,15 +1464,182 @@ function StepPortfolio({
           {tab === "projects"
             ? "Project"
             : tab === "workExperience"
-            ? "Experience"
-            : "Talk / Award"}
+              ? "Experience"
+              : "Talk / Award"}
         </Button>
       </div>
     </div>
   );
 }
 
-// ── Step 4: Links & Finish ──────────────────────────────────
+// ── Step 4: Photo & Voice ────────────────────────────────────
+
+function StepVoice({
+  profile,
+  profileId,
+  updateField,
+}: {
+  profile: Profile;
+  profileId: string;
+  updateField: <K extends keyof Profile>(key: K, value: Profile[K]) => void;
+}) {
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [cloning, setCloning] = useState(false);
+  const [cloneError, setCloneError] = useState<string | null>(null);
+  const [cloned, setCloned] = useState(!!profile.voice_id);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream, {
+        mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+          ? "audio/webm;codecs=opus"
+          : "audio/webm",
+      });
+      chunksRef.current = [];
+      mr.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      mr.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+      };
+      mediaRecorderRef.current = mr;
+      mr.start();
+      setRecording(true);
+      setCloneError(null);
+    } catch {
+      setCloneError("Microphone access denied.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+    }
+  };
+
+  const handleClone = async () => {
+    if (!audioBlob || !profileId) return;
+    setCloning(true);
+    setCloneError(null);
+    try {
+      const result = await cloneVoice(profileId, audioBlob);
+      updateField("voice_id", result.voice_id);
+      setCloned(true);
+    } catch (err: any) {
+      setCloneError(err.message);
+    } finally {
+      setCloning(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <h2 className="text-2xl font-bold">
+        Photo & Voice{" "}
+        <HelpTip text="Upload a profile photo and record your voice. The voice recording will be used to create an AI voice clone that represents you on your shareable profile page." />
+      </h2>
+
+      {/* Avatar */}
+      <div className="space-y-2">
+        <Label className="text-base font-semibold">Profile Photo</Label>
+        <ImageUpload
+          profileId={profileId}
+          currentUrl={profile.avatar}
+          onUploaded={(url) => updateField("avatar", url)}
+        />
+      </div>
+
+      {/* Voice recording */}
+      <div className="border rounded-lg p-6 space-y-4 bg-gray-50/50 dark:bg-gray-800/30">
+        <div className="flex items-start gap-3">
+          <Mic size={20} className="text-primary mt-0.5 shrink-0" />
+          <div>
+            <h3 className="font-semibold text-sm">Voice Cloning</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Record 10-30 seconds of your voice speaking naturally. This will be used to generate AI responses in your voice.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-4 py-4">
+          {/* Record button */}
+          <button
+            type="button"
+            onClick={recording ? stopRecording : startRecording}
+            className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${recording
+                ? "bg-red-500 animate-pulse shadow-lg shadow-red-500/30"
+                : "bg-primary/10 hover:bg-primary/20"
+              }`}
+          >
+            {recording ? (
+              <MicOff size={24} className="text-white" />
+            ) : (
+              <Mic size={24} className="text-primary" />
+            )}
+          </button>
+          <p className="text-sm text-muted-foreground">
+            {recording
+              ? "Recording... Click to stop"
+              : audioBlob
+                ? "Recording ready"
+                : "Click to start recording"}
+          </p>
+        </div>
+
+        {/* Playback */}
+        {audioUrl && (
+          <div className="flex items-center gap-3">
+            <Volume2 size={16} className="text-muted-foreground" />
+            <audio controls src={audioUrl} className="flex-1 h-10" />
+          </div>
+        )}
+
+        {/* Clone button */}
+        {audioBlob && !cloned && (
+          <Button
+            type="button"
+            onClick={handleClone}
+            disabled={cloning}
+            className="w-full"
+          >
+            {cloning ? (
+              <>
+                <Loader2 size={16} className="mr-2 animate-spin" />
+                Cloning voice...
+              </>
+            ) : (
+              "Clone My Voice"
+            )}
+          </Button>
+        )}
+
+        {/* Success */}
+        {cloned && (
+          <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 size={18} />
+            Voice cloned successfully! Visitors will hear your AI in your voice.
+          </div>
+        )}
+
+        {/* Error */}
+        {cloneError && (
+          <p className="text-sm text-red-500">{cloneError}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Step 5: Links & Finish ──────────────────────────────────
 
 function StepLinks({
   links,

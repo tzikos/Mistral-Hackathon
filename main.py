@@ -3,13 +3,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import os
+import io
+import base64
 import logging
+import tempfile
 
-from fastapi import FastAPI, HTTPException, Header, UploadFile, File
+from fastapi import FastAPI, HTTPException, Header, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import uvicorn
 import json
+import httpx
 from pathlib import Path
 
 from models import (
@@ -269,6 +273,7 @@ EMPTY_PROFILE = {
     "badge": "",
     "description": "",
     "avatar": None,
+    "voice_id": None,
     "about": {
         "bio": [],
         "skills": [],
@@ -306,10 +311,17 @@ def register(body: UserRegister):
 
 @app.post("/auth/login", response_model=TokenResponse)
 def login(body: UserLogin):
-    # TODO: re-enable credential checks before production
-    # For now, any login leads to the default Dimitris profile
-    token = create_access_token({"sub": "dimitris"})
-    return TokenResponse(access_token=token, profile_id="dimitris")
+    USERS_DIR.mkdir(exist_ok=True)
+    user_path = USERS_DIR / f"{body.username}.json"
+    if not user_path.exists():
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    user_data = json.loads(user_path.read_text())
+    if not verify_password(body.password, user_data["hashed_password"]):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    token = create_access_token({"sub": body.username})
+    return TokenResponse(access_token=token, profile_id=body.username)
 
 
 @app.get("/auth/me")
@@ -322,6 +334,300 @@ def get_current_user(authorization: str = Header()):
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 
     return {"profile_id": payload["sub"]}
+
+
+# ── Voice cloning & conversation ─────────────────────────────
+
+
+def _build_system_prompt(profile: dict) -> str:
+    """Generate a system prompt from the user's profile data."""
+    name = profile.get("name", "Unknown")
+    headline = profile.get("headline", "")
+    badge = profile.get("badge", "")
+    description = profile.get("description", "")
+    about = profile.get("about", {})
+    portfolio = profile.get("portfolio", {})
+    links = profile.get("links", {})
+
+    bio = "\n".join(about.get("bio", []))
+    skills = ", ".join(about.get("skills", []))
+
+    education_lines = []
+    for edu in about.get("education", []):
+        line = f"- {edu.get('degree', '')} at {edu.get('institution', '')} ({edu.get('period', '')})"
+        if edu.get("focus"):
+            line += f" — Focus: {edu['focus']}"
+        education_lines.append(line)
+    education = "\n".join(education_lines)
+
+    expertise_lines = []
+    for exp in about.get("expertise", []):
+        expertise_lines.append(f"- {exp.get('title', '')}: {exp.get('description', '')}")
+    expertise = "\n".join(expertise_lines)
+
+    work_lines = []
+    for w in portfolio.get("workExperience", []):
+        line = f"- {w.get('title', '')}: {w.get('description', '')}"
+        if w.get("tags"):
+            line += f" (Technologies: {', '.join(w['tags'])})"
+        work_lines.append(line)
+    work = "\n".join(work_lines)
+
+    project_lines = []
+    for p in portfolio.get("projects", []):
+        line = f"- {p.get('title', '')}: {p.get('description', '')}"
+        if p.get("tags"):
+            line += f" (Technologies: {', '.join(p['tags'])})"
+        project_lines.append(line)
+    projects = "\n".join(project_lines)
+
+    awards_lines = []
+    for a in portfolio.get("talksAndAwards", []):
+        awards_lines.append(f"- {a.get('title', '')}: {a.get('description', '')}")
+    awards = "\n".join(awards_lines)
+
+    certs_lines = []
+    for c in about.get("certifications", []):
+        certs_lines.append(f"- {c.get('title', '')}: {c.get('description', '')}")
+    certs = "\n".join(certs_lines)
+
+    link_parts = []
+    for key, val in links.items():
+        if val:
+            link_parts.append(f"{key}: {val}")
+    links_text = ", ".join(link_parts)
+
+    prompt = f"""You are {name}, a digital AI representative. You answer questions about {name}'s professional background, education, skills, and experience. Speak in the first person as {name}. Be conversational but professional.
+
+Profile: {headline}
+Badge: {badge}
+Summary: {description}
+
+Bio:
+{bio}
+
+Skills: {skills}
+
+Expertise:
+{expertise}
+
+Education:
+{education}
+
+Work Experience:
+{work}
+
+Projects:
+{projects}
+
+Awards & Talks:
+{awards}
+
+Certifications:
+{certs}
+
+Links: {links_text}
+
+Guidelines:
+1. Only use information from this profile. Never fabricate data.
+2. If asked about something not in the profile, say you don't have that information.
+3. Be concise — reply in at most 3 sentences for voice responses.
+4. Be enthusiastic and approachable.
+5. If asked about topics outside the professional scope, politely redirect."""
+    return prompt
+
+
+def _get_elevenlabs_key() -> str:
+    key = os.environ.get("ELEVENLABS_API_KEY")
+    if not key:
+        raise HTTPException(status_code=500, detail="ELEVENLABS_API_KEY not configured")
+    return key
+
+
+@app.post("/profile/{profile_id}/clone-voice")
+async def clone_voice(profile_id: str, file: UploadFile = File(...)):
+    """Upload a voice sample and create a cloned voice via ElevenLabs."""
+    profile_path = PROFILES_DIR / f"{profile_id}.json"
+    if not profile_path.exists():
+        raise HTTPException(status_code=404, detail=f"Profile '{profile_id}' not found")
+
+    contents = await file.read()
+    if len(contents) > 25 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="File too large (max 25 MB)")
+
+    api_key = _get_elevenlabs_key()
+
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            resp = await client.post(
+                "https://api.elevenlabs.io/v1/voices/add",
+                headers={"xi-api-key": api_key},
+                data={
+                    "name": f"clone-{profile_id}",
+                    "description": f"Cloned voice for {profile_id}",
+                },
+                files={
+                    "files": (file.filename or "voice.wav", contents, file.content_type or "audio/wav"),
+                },
+            )
+
+        if resp.status_code != 200:
+            logger.error("ElevenLabs clone error %s: %s", resp.status_code, resp.text)
+            raise HTTPException(
+                status_code=502,
+                detail=f"Voice cloning failed: {resp.text}",
+            )
+
+        voice_id = resp.json().get("voice_id")
+        if not voice_id:
+            raise HTTPException(status_code=502, detail="No voice_id returned")
+
+        # Save voice_id to profile
+        profile_data = json.loads(profile_path.read_text())
+        profile_data["voice_id"] = voice_id
+        profile_path.write_text(json.dumps(profile_data, indent=2))
+
+        return {"voice_id": voice_id, "status": "cloned"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Voice cloning failed")
+        raise HTTPException(status_code=500, detail=f"Voice cloning failed: {e}")
+
+
+@app.get("/profile/{profile_id}/voice-status")
+def voice_status(profile_id: str):
+    """Check if a profile has a cloned voice."""
+    profile_data = _read_profile(profile_id)
+    vid = profile_data.get("voice_id")
+    return {"has_voice": bool(vid), "voice_id": vid}
+
+
+@app.post("/profile/{profile_id}/chat")
+async def voice_chat(profile_id: str, file: UploadFile = File(...)):
+    """Full voice conversation: STT → Mistral completion → ElevenLabs TTS.
+
+    Accepts an audio file, returns JSON with transcription, reply text,
+    and base64-encoded audio of the reply.
+    """
+    profile_data = _read_profile(profile_id)
+
+    # ── 1. Save incoming audio ───────────────────────────────
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(status_code=400, detail="Empty audio file")
+
+    suffix = ".wav"
+    if file.filename:
+        suffix = os.path.splitext(file.filename)[1] or ".wav"
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+    tmp.write(audio_bytes)
+    tmp.close()
+
+    try:
+        client = get_mistral_client()
+
+        # ── 2. STT – transcribe with Mistral ─────────────────
+        from mistralai.models.file import File as MistralFile
+
+        audio_file_obj = MistralFile(
+            content=audio_bytes,
+            file_name=file.filename or "recording.wav",
+        )
+
+        transcription_models = [
+            "voxtral-mini-latest",  # Voxtral Mini – primary transcription model
+        ]
+        env_model = os.environ.get("MISTRAL_TRANSCRIPTION_MODEL", "").strip()
+        if env_model:
+            transcription_models.insert(0, env_model)
+
+        transcription_text = ""
+        for model_name in transcription_models:
+            try:
+                result = client.audio.transcriptions.complete(
+                    model=model_name,
+                    file=audio_file_obj,
+                )
+                transcription_text = (
+                    result.text if hasattr(result, "text") else str(result)
+                )
+                break
+            except Exception as stt_err:
+                logger.warning("STT model %s failed: %s", model_name, stt_err)
+                continue
+
+        if not transcription_text.strip():
+            return {
+                "transcription": "",
+                "reply": "I couldn't hear that clearly. Could you try again?",
+                "audio": None,
+            }
+
+        # ── 3. Mistral completion ────────────────────────────
+        system_prompt = _build_system_prompt(profile_data)
+        max_sentences = int(os.environ.get("MISTRAL_MAX_SENTENCES", "3"))
+        max_tokens = int(os.environ.get("MISTRAL_MAX_TOKENS", "160"))
+
+        constraint = f"Reply in at most {max_sentences} sentences. Be concise."
+        chat_response = client.chat.complete(
+            model="mistral-large-latest",
+            messages=[
+                {"role": "system", "content": f"{system_prompt}\n\n{constraint}"},
+                {"role": "user", "content": transcription_text},
+            ],
+            max_tokens=max_tokens,
+        )
+        reply_text = chat_response.choices[0].message.content.strip()
+
+        # ── 4. TTS – ElevenLabs ──────────────────────────────
+        voice_id = profile_data.get("voice_id")
+        audio_b64 = None
+
+        if voice_id:
+            try:
+                api_key = _get_elevenlabs_key()
+                async with httpx.AsyncClient(timeout=60) as http:
+                    tts_resp = await http.post(
+                        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                        headers={
+                            "xi-api-key": api_key,
+                            "Content-Type": "application/json",
+                            "Accept": "audio/mpeg",
+                        },
+                        json={
+                            "text": reply_text,
+                            "model_id": "eleven_multilingual_v2",
+                            "voice_settings": {
+                                "stability": 0.5,
+                                "similarity_boost": 0.8,
+                            },
+                        },
+                    )
+                if tts_resp.status_code == 200:
+                    audio_b64 = base64.b64encode(tts_resp.content).decode("utf-8")
+                else:
+                    logger.warning("ElevenLabs TTS error %s: %s", tts_resp.status_code, tts_resp.text)
+            except Exception as tts_err:
+                logger.warning("TTS failed: %s", tts_err)
+
+        return {
+            "transcription": transcription_text,
+            "reply": reply_text,
+            "audio": {"base64": audio_b64, "format": "mp3"} if audio_b64 else None,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Voice chat failed")
+        raise HTTPException(status_code=500, detail=f"Voice chat failed: {e}")
+    finally:
+        try:
+            os.unlink(tmp.name)
+        except OSError:
+            pass
 
 
 if __name__ == "__main__":

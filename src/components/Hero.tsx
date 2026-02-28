@@ -108,7 +108,7 @@ const Hero: React.FC<HeroProps> = ({ profile }) => {
 
           <div className="animate-on-scroll opacity-0 transition-opacity duration-1000 delay-700 flex flex-col sm:flex-row justify-center gap-4 mt-8">
             <button
-              onClick={() => navigate("/agent")}
+              onClick={() => navigate(`/${profile.id}/agent`)}
               className="px-8 py-3 bg-primary text-primary-foreground rounded-md btn-glow transition-colors duration-300 inline-flex items-center justify-center gap-2"
             >
               <MessageCircle size={20} />

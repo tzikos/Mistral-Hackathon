@@ -63,3 +63,6 @@ bun.lockb
 # (Keep package-lock.json for npm projects)
 
 __pycache__/
+
+# Separate website repo
+website/

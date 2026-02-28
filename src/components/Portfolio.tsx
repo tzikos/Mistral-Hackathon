@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight, BarChart, Code, ExternalLink } from "lucide-react";
 import ProjectDetailDialog from "./ProjectDetailDialog";
 import { Presentation } from "lucide-react";
-import Gallery from "./Gallery";
 import { Profile, PortfolioItem } from "@/types/profile";
 
 interface ProjectCardProps {
@@ -23,14 +22,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && setShowDetails(true)}
       >
-        <div className="aspect-video relative overflow-hidden">
-          <img
-            src={project.image}
-            alt={project.title}
-            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 image-fade-in ${imageLoaded ? 'loaded' : ''}`}
-            onLoad={() => setImageLoaded(true)}
-          />
-        </div>
+        {project.image && (
+          <div className="aspect-video relative overflow-hidden">
+            <img
+              src={project.image}
+              alt={project.title}
+              className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 image-fade-in ${imageLoaded ? 'loaded' : ''}`}
+              onLoad={() => setImageLoaded(true)}
+            />
+          </div>
+        )}
         <div className="p-6">
           <h3 className="text-xl font-medium mb-2">{project.title}</h3>
           <p className="text-muted-foreground mb-4">{project.description}</p>
@@ -245,8 +246,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
         </div>
       </section>
 
-      {/* Gallery section */}
-      <Gallery />
     </>
   );
 };

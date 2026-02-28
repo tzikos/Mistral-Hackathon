@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Mail, MapPin, Phone, Send, Linkedin, Github, Instagram } from "lucide-react";
+import { Mail, MapPin, Send, Linkedin, Github, Instagram } from "lucide-react";
 import { toast } from 'sonner';
+import { Profile } from "@/types/profile";
 
-const Contact = () => {
+interface ContactProps {
+  profile: Profile;
+}
+
+const Contact: React.FC<ContactProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState({
@@ -34,9 +39,6 @@ const Contact = () => {
     };
   }, []);
 
-  useEffect(() => {
-  }, []);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({
       ...prev,
@@ -49,7 +51,6 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      // TODO: wire up to backend API
       console.log('Contact form submitted:', formData);
       toast.success('Thank you for your message! I will get back to you soon.');
       setFormData({ name: '', email: '', subject: '', message: '' });
@@ -59,6 +60,8 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
+
+  const hasAnySocialLink = profile.links.linkedIn || profile.links.github || profile.links.instagram;
 
   return (
     <section
@@ -75,7 +78,7 @@ const Contact = () => {
               </span>
               <h2 className="section-heading">Let's work together</h2>
               <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                Whether you need help with data analysis, photography services, or just want to chat about potential collaborations, I'd love to hear from you.
+                Whether you want to discuss potential collaborations or just connect, I'd love to hear from you.
               </p>
             </div>
           </div>
@@ -159,72 +162,88 @@ const Contact = () => {
                   <div className="flex items-start">
                     <MapPin className="h-5 w-5 mr-3 text-primary mt-1" />
                     <div>
-                      <h4 className="font-medium mb-1">Location</h4>
+                      <h4 className="font-medium mb-1">Name</h4>
                       <p className="text-muted-foreground">
-                        Copenhagen, Denmark
+                        {profile.name}
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex items-start">
-                    <Mail className="h-5 w-5 mr-3 text-primary mt-1" />
-                    <div>
-                      <h4 className="font-medium mb-1">Email</h4>
-                      <a
-                        href="mailto:papantzikos12@gmail.com"
-                        className="text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        papantzikos12@gmail.com
-                      </a>
+                  {profile.links.linkedIn && (
+                    <div className="flex items-start">
+                      <Linkedin className="h-5 w-5 mr-3 text-primary mt-1" />
+                      <div>
+                        <h4 className="font-medium mb-1">LinkedIn</h4>
+                        <a
+                          href={profile.links.linkedIn}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          View Profile
+                        </a>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="flex items-start">
-                    <Phone className="h-5 w-5 mr-3 text-primary mt-1" />
-                    <div>
-                      <h4 className="font-medium mb-1">Phone</h4>
-                      <a
-                        href="tel:+4591628719"
-                        className="text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        +45 91 62 87 19
-                      </a>
+                  {profile.links.github && (
+                    <div className="flex items-start">
+                      <Github className="h-5 w-5 mr-3 text-primary mt-1" />
+                      <div>
+                        <h4 className="font-medium mb-1">GitHub</h4>
+                        <a
+                          href={profile.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          View Profile
+                        </a>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
-                <div className="mt-8 pt-8 border-t">
-                  <h4 className="font-medium mb-4">Connect with me</h4>
-                  <div className="flex space-x-4">
-                    <a
-                      href="https://www.linkedin.com/in/dimitris-papantzikos/"
-                      target="_blank" // This opens the link in a new tab
-                      rel="noopener noreferrer" // This is a security best practice
-                      className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
-                      aria-label="LinkedIn"
-                    >
-                      <Linkedin size={20} />
-                    </a>
-                    <a
-                      href="https://www.instagram.com/dpadventures"
-                      target="_blank" // This opens the link in a new tab
-                      rel="noopener noreferrer" // This is a security best practice
-                      className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
-                      aria-label="Instagram"
-                    >
-                      <Instagram size={20} />
-                    </a>
-                    <a
-                      href="https://github.com/tzikos"
-                      target="_blank" // This opens the link in a new tab
-                      rel="noopener noreferrer" // This is a security best practice
-                      className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
-                      aria-label="GitHub"
-                    >
-                      <Github size={20} />
-                    </a>
+                {hasAnySocialLink && (
+                  <div className="mt-8 pt-8 border-t">
+                    <h4 className="font-medium mb-4">Connect with me</h4>
+                    <div className="flex space-x-4">
+                      {profile.links.linkedIn && (
+                        <a
+                          href={profile.links.linkedIn}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
+                          aria-label="LinkedIn"
+                        >
+                          <Linkedin size={20} />
+                        </a>
+                      )}
+                      {profile.links.instagram && (
+                        <a
+                          href={profile.links.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
+                          aria-label="Instagram"
+                        >
+                          <Instagram size={20} />
+                        </a>
+                      )}
+                      {profile.links.github && (
+                        <a
+                          href={profile.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
+                          aria-label="GitHub"
+                        >
+                          <Github size={20} />
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
@@ -235,3 +254,4 @@ const Contact = () => {
 };
 
 export default Contact;
+

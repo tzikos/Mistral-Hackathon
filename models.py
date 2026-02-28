@@ -59,6 +59,7 @@ class Profile(BaseModel):
     badge: str
     description: str
     avatar: str | None = None
+    voice_id: str | None = None
     about: AboutSection
     portfolio: PortfolioSection
     links: Links
