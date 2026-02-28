@@ -1,12 +1,15 @@
 [project]
 name = "mistral-hackathon"
 version = "0.1.0"
-description = "AI-powered personal profile platform"
+description = "Mistral AI Voice API Proof of Concept"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "flask>=3.1.3",
     "fastapi>=0.111.0",
     "uvicorn>=0.30.1",
+    "flask-cors>=4.0.0",
+    "mistralai>=1.12.4",
     "python-dotenv>=1.2.1",
     "pydantic>=2.7.1",
     "mistralai>=1.12.4",

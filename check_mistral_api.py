@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 api_key = os.environ["MISTRAL_API_KEY"]
-model = "mistral-medium-latest"
+model = "mistral-large-latest"
 
 client = Mistral(api_key=api_key)
 
