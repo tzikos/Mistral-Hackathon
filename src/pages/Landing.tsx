@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, Loader2, MessageCircle, LogOut, Sparkles } from "lucide-react";
+import { Search, User, Loader2, MessageCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiUrl } from "@/lib/api";
+import Logo from "@/components/Logo";
 
 interface ProfileCard {
   id: string;
@@ -51,11 +52,11 @@ function ProfileCardComponent({
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left bg-white/4 hover:bg-white/8 border border-white/10 hover:border-primary/40 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5"
+      className="group w-full text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-primary/40 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5"
     >
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white/10 group-hover:ring-primary/30 transition-all">
+        <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-gray-200 group-hover:ring-primary/30 transition-all">
           {card.avatar ? (
             <img
               src={card.avatar}
@@ -70,18 +71,18 @@ function ProfileCardComponent({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-semibold text-white text-base leading-tight truncate group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-gray-900 text-base leading-tight truncate group-hover:text-primary transition-colors">
               {card.name}
             </h3>
             {card.voice_id && (
-              <span className="flex-shrink-0 flex items-center gap-1 text-[10px] text-emerald-400 border border-emerald-400/30 rounded-full px-2 py-0.5">
+              <span className="flex-shrink-0 flex items-center gap-1 text-[10px] text-emerald-600 border border-emerald-200 rounded-full px-2 py-0.5">
                 <MessageCircle size={10} />
                 Voice
               </span>
             )}
           </div>
           {card.headline && (
-            <p className="text-sm text-gray-400 mt-0.5 leading-snug line-clamp-2">
+            <p className="text-sm text-gray-500 mt-0.5 leading-snug line-clamp-2">
               {card.headline}
             </p>
           )}
@@ -92,7 +93,7 @@ function ProfileCardComponent({
               {badgeParts.map((b) => (
                 <span
                   key={b}
-                  className="text-[10px] font-medium bg-primary/15 text-primary border border-primary/20 rounded-full px-2 py-0.5"
+                  className="text-[10px] font-medium bg-primary/10 text-primary border border-primary/20 rounded-full px-2 py-0.5"
                 >
                   {b.trim()}
                 </span>
@@ -106,7 +107,7 @@ function ProfileCardComponent({
               {card.skills.map((s) => (
                 <span
                   key={s}
-                  className="text-[10px] text-gray-400 bg-white/5 border border-white/10 rounded-full px-2 py-0.5"
+                  className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5"
                 >
                   {s}
                 </span>
@@ -180,13 +181,10 @@ const Landing = () => {
   const showEmpty = searched && !searching && !hasResults;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 text-gray-900 flex flex-col">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-white/6">
-        <div className="flex items-center gap-2">
-          <Sparkles size={20} className="text-primary" />
-          <span className="font-semibold text-white tracking-tight">Talently</span>
-        </div>
+      <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-gray-200">
+        <Logo size="md" />
 
         <div className="flex items-center gap-3">
           {!authLoading && (
@@ -194,14 +192,14 @@ const Landing = () => {
               <>
                 <button
                   onClick={() => navigate(`/${profileId}`)}
-                  className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-white/8"
+                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition px-3 py-1.5 rounded-lg hover:bg-gray-100"
                 >
                   <User size={15} />
                   My Profile
                 </button>
                 <button
                   onClick={() => { logout(); }}
-                  className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-300 transition"
+                  className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition"
                 >
                   <LogOut size={14} />
                   Sign out
@@ -210,8 +208,8 @@ const Landing = () => {
             ) : (
               <>
                 <button
-                  onClick={() => navigate("/auth")}
-                  className="text-sm text-gray-400 hover:text-white transition"
+                  onClick={() => navigate("/")}
+                  className="text-sm text-gray-500 hover:text-gray-900 transition"
                 >
                   Sign in
                 </button>
@@ -230,13 +228,13 @@ const Landing = () => {
       {/* Hero + search */}
       <div className="flex flex-col items-center px-4 pt-20 pb-10">
         <div className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 text-gray-900">
             Find the right{" "}
             <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               talent
             </span>
           </h1>
-          <p className="text-gray-400 text-base sm:text-lg max-w-md mx-auto">
+          <p className="text-gray-500 text-base sm:text-lg max-w-md mx-auto">
             Search by skills, role, experience, or anything else across all profiles
           </p>
         </div>
@@ -255,7 +253,7 @@ const Landing = () => {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
               placeholder="e.g. Python, machine learning, full stack..."
-              className="w-full bg-white/8 border border-white/15 focus:border-primary/60 text-white placeholder-gray-500 rounded-2xl pl-11 pr-12 py-4 text-sm outline-none transition-all duration-200 focus:bg-white/10 focus:shadow-lg focus:shadow-primary/10"
+              className="w-full bg-white border border-gray-300 focus:border-primary/60 text-gray-900 placeholder-gray-400 rounded-2xl pl-11 pr-12 py-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:shadow-lg focus:shadow-primary/10"
             />
             {searching ? (
               <Loader2
@@ -265,7 +263,7 @@ const Landing = () => {
             ) : query ? (
               <button
                 onClick={() => { setQuery(""); setResults([]); setSearched(false); }}
-                className="absolute right-4 text-gray-500 hover:text-gray-300 transition text-lg leading-none"
+                className="absolute right-4 text-gray-400 hover:text-gray-600 transition text-lg leading-none"
               >
                 ×
               </button>
@@ -279,7 +277,7 @@ const Landing = () => {
                 <button
                   key={s}
                   onClick={() => handleSuggestion(s)}
-                  className="text-xs text-gray-400 border border-white/10 hover:border-primary/40 hover:text-primary rounded-full px-3 py-1.5 transition-all"
+                  className="text-xs text-gray-500 border border-gray-300 hover:border-primary/40 hover:text-primary rounded-full px-3 py-1.5 transition-all"
                 >
                   {s}
                 </button>
@@ -293,7 +291,7 @@ const Landing = () => {
       <div className="flex-1 w-full max-w-4xl mx-auto px-4 pb-16">
         {hasResults && (
           <>
-            <p className="text-xs text-gray-500 mb-4 text-center">
+            <p className="text-xs text-gray-400 mb-4 text-center">
               {results.length} profile{results.length !== 1 ? "s" : ""} found
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -310,11 +308,11 @@ const Landing = () => {
 
         {showEmpty && (
           <div className="flex flex-col items-center justify-center py-20 text-center gap-3">
-            <Search size={36} className="text-gray-700" />
-            <p className="text-gray-400 text-sm">
-              No profiles found for <strong className="text-gray-300">"{query}"</strong>
+            <Search size={36} className="text-gray-300" />
+            <p className="text-gray-500 text-sm">
+              No profiles found for <strong className="text-gray-700">"{query}"</strong>
             </p>
-            <p className="text-gray-600 text-xs">
+            <p className="text-gray-400 text-xs">
               Try different keywords or a broader search
             </p>
           </div>

@@ -1,26 +1,32 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import Logo from "@/components/Logo";
 
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Already signed in → go straight to search
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to="/search" replace />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
-      const pid = await login(username, password);
-      navigate(`/${pid}`);
+      await login(username, password);
+      navigate("/search");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -29,7 +35,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
       {/* Floating orbs background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" />
@@ -37,15 +43,7 @@ const Auth = () => {
       </div>
 
       <div className="w-full max-w-md text-center mb-8">
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-2">
-          <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            AskMe
-          </span>
-          <span className="text-muted-foreground/60">.</span>
-          <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
-            stral
-          </span>
-        </h1>
+        <Logo size="lg" className="block mb-2" />
         <p className="text-muted-foreground text-sm">
           Your AI-powered professional profile
         </p>
@@ -93,24 +91,14 @@ const Auth = () => {
             </Button>
           </form>
 
-          <div className="mt-4 text-center text-sm text-muted-foreground space-y-2">
-            <div>
-              Don't have an account?{" "}
-              <button
-                className="text-primary hover:underline"
-                onClick={() => navigate("/create")}
-              >
-                Create Profile
-              </button>
-            </div>
-            <div>
-              <button
-                className="text-muted-foreground hover:text-foreground underline text-xs"
-                onClick={() => navigate("/")}
-              >
-                ← Back to search
-              </button>
-            </div>
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <button
+              className="text-primary hover:underline"
+              onClick={() => navigate("/create")}
+            >
+              Create Profile
+            </button>
           </div>
         </CardContent>
       </Card>

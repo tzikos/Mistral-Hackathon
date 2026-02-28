@@ -4,6 +4,7 @@ import { Menu, X, LogOut, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import Logo from "@/components/Logo";
 
 interface NavbarProps {
   profileName: string;
@@ -59,16 +60,13 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId }) => {
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <a
-          href="#"
-          className="text-lg font-medium tracking-tight hover:opacity-80 transition-opacity"
-          onClick={(e) => {
-            e.preventDefault();
-            scrollToTop();
-          }}
+        <button
+          onClick={() => navigate("/search")}
+          className="hover:opacity-80 transition-opacity"
+          aria-label="Go to search"
         >
-          {profileName}
-        </a>
+          <Logo size="sm" />
+        </button>
 
         {/* Desktop navigation */}
         <nav className="hidden md:flex items-center space-x-8">
