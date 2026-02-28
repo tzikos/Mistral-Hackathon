@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { apiUrl } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -376,7 +377,7 @@ const CreateProfile = () => {
   // Load existing profile data (edit mode)
   useEffect(() => {
     if (!paramProfileId) return;
-    fetch(`/api/profile/${paramProfileId}`)
+    fetch(apiUrl(`/profile/${paramProfileId}`))
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data) {
@@ -506,7 +507,7 @@ const CreateProfile = () => {
     if (!activeProfileId) return;
     setSaving(true);
     try {
-      const res = await fetch(`/api/profile/${activeProfileId}`, {
+      const res = await fetch(apiUrl(`/profile/${activeProfileId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
@@ -594,14 +595,14 @@ const CreateProfile = () => {
               >
                 <div
                   className={`h-2 rounded-full mb-1 transition-colors ${i <= step
-                      ? "bg-primary"
-                      : "bg-gray-200 dark:bg-gray-700"
+                    ? "bg-primary"
+                    : "bg-gray-200 dark:bg-gray-700"
                     }`}
                 />
                 <span
                   className={`text-xs ${i === step
-                      ? "text-primary font-medium"
-                      : "text-muted-foreground"
+                    ? "text-primary font-medium"
+                    : "text-muted-foreground"
                     }`}
                 >
                   {label}
@@ -1120,8 +1121,8 @@ function StepAbout({
                             updateExpertiseItem(i, "icon", opt.value)
                           }
                           className={`w-9 h-9 flex items-center justify-center rounded-md transition-all ${exp.icon === opt.value
-                              ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-1"
-                              : "hover:bg-gray-200 dark:hover:bg-gray-700 text-muted-foreground hover:text-foreground"
+                            ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-1"
+                            : "hover:bg-gray-200 dark:hover:bg-gray-700 text-muted-foreground hover:text-foreground"
                             }`}
                         >
                           <opt.Icon size={18} />
@@ -1146,8 +1147,8 @@ function StepAbout({
                             updateExpertiseItem(i, "color", c.value)
                           }
                           className={`w-8 h-8 rounded-full border-2 transition-all ${exp.color === c.value
-                              ? "border-foreground scale-110 ring-2 ring-offset-1 ring-foreground/30"
-                              : "border-transparent hover:scale-105"
+                            ? "border-foreground scale-110 ring-2 ring-offset-1 ring-foreground/30"
+                            : "border-transparent hover:scale-105"
                             }`}
                           style={{ backgroundColor: c.hex }}
                         />
@@ -1369,8 +1370,8 @@ function StepPortfolio({
             key={key}
             onClick={() => setTab(key)}
             className={`px-4 py-2 rounded-t-md text-sm font-medium transition-colors ${tab === key
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-foreground"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:text-foreground"
               }`}
           >
             {tabLabels[key]}
@@ -1576,8 +1577,8 @@ function StepVoice({
             type="button"
             onClick={recording ? stopRecording : startRecording}
             className={`w-16 h-16 rounded-full flex items-center justify-center transition-all ${recording
-                ? "bg-red-500 animate-pulse shadow-lg shadow-red-500/30"
-                : "bg-primary/10 hover:bg-primary/20"
+              ? "bg-red-500 animate-pulse shadow-lg shadow-red-500/30"
+              : "bg-primary/10 hover:bg-primary/20"
               }`}
           >
             {recording ? (

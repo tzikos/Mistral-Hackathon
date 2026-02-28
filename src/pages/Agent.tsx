@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Mic, MicOff, Volume2, Loader2, User } from "lucide-react";
 import type { Profile } from "@/types/profile";
+import { apiUrl } from "@/lib/api";
 
 type Status = "idle" | "recording" | "processing" | "speaking";
 
@@ -32,7 +33,7 @@ const Agent = () => {
   // Load profile
   useEffect(() => {
     if (!profileId) return;
-    fetch(`/api/profile/${profileId}`)
+    fetch(apiUrl(`/profile/${profileId}`))
       .then((res) => {
         if (!res.ok) throw new Error(`Profile not found (${res.status})`);
         return res.json();
@@ -103,7 +104,7 @@ const Agent = () => {
       const formData = new FormData();
       formData.append("file", audioBlob, "recording.webm");
 
-      const res = await fetch(`/api/profile/${profileId}/chat`, {
+      const res = await fetch(apiUrl(`/profile/${profileId}/chat`), {
         method: "POST",
         body: formData,
       });

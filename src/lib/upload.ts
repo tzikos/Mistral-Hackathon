@@ -1,4 +1,5 @@
 import type { Profile } from "@/types/profile";
+import { apiUrl } from "@/lib/api";
 
 export async function uploadFile(
   profileId: string,
@@ -7,7 +8,7 @@ export async function uploadFile(
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(`/api/profile/${profileId}/upload`, {
+  const res = await fetch(apiUrl(`/profile/${profileId}/upload`), {
     method: "POST",
     body: formData,
   });
@@ -27,7 +28,7 @@ export async function parseCv(
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await fetch(`/api/profile/${profileId}/parse-cv`, {
+  const res = await fetch(apiUrl(`/profile/${profileId}/parse-cv`), {
     method: "POST",
     body: formData,
   });
@@ -47,7 +48,7 @@ export async function cloneVoice(
   const formData = new FormData();
   formData.append("file", audioBlob, "voice-sample.wav");
 
-  const res = await fetch(`/api/profile/${profileId}/clone-voice`, {
+  const res = await fetch(apiUrl(`/profile/${profileId}/clone-voice`), {
     method: "POST",
     body: formData,
   });

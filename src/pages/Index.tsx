@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { apiUrl } from "@/lib/api";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
@@ -18,7 +19,7 @@ const Index = () => {
 
   useEffect(() => {
     if (!profileId) return;
-    fetch(`/api/profile/${profileId}`)
+    fetch(apiUrl(`/profile/${profileId}`))
       .then((res) => {
         if (!res.ok) throw new Error(`Failed to load profile (${res.status})`);
         return res.json();

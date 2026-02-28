@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { AuthResponse } from "@/types/auth";
+import { apiUrl } from "@/lib/api";
 
 interface AuthContextType {
   token: string | null;
@@ -35,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       setIsLoading(false);
       return;
     }
-    fetch("/api/auth/me", {
+    fetch(apiUrl("/auth/me"), {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -78,10 +79,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const login = (username: string, password: string) =>
-    handleAuth("/api/auth/login", username, password);
+    handleAuth(apiUrl("/auth/login"), username, password);
 
   const register = (username: string, password: string) =>
-    handleAuth("/api/auth/register", username, password);
+    handleAuth(apiUrl("/auth/register"), username, password);
 
   const logout = () => {
     setToken(null);
