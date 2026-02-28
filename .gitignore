@@ -1,14 +1,68 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
+# =========================
+# Logs
+# =========================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.venv/
+
+# =========================
+# Build output
+# =========================
 dist/
-wheels/
-*.egg-info
+dist-ssr/
+.vite/
 
-# Virtual environments
-.venv
-
+# =========================
+# Environment variables
+# =========================
 .env
+.env.local
+.env.*.local
 
+# =========================
+# Runtime data (user-generated)
+# =========================
+uploads/
+users/
+
+# =========================
+# Editor / OS files
+# =========================
+.vscode/*
+!.vscode/extensions.json
 .idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.qodo
+.kiro
+
+# =========================
+# Other
+# =========================
+*.local
+lambda/
+
+# =========================
+# Lock files
+# =========================
+bun.lockb
+# (Keep package-lock.json for npm projects)
+
+__pycache__/
+
+# Separate website repo
+website/

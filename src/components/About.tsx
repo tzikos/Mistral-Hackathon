@@ -1,0 +1,185 @@
+
+import React, { useEffect, useRef } from "react";
+import {
+  Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
+  Cpu, Globe, Heart, Layers, Lock, Mail, Monitor, Palette, PenTool,
+  Rocket, Search, Server, Settings, Shield, Star, Terminal, TrendingUp,
+  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb,
+} from "lucide-react";
+import { Profile } from "@/types/profile";
+
+const iconMap: Record<string, React.ElementType> = {
+  Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
+  Cpu, Globe, Heart, Layers, Lock, Mail, Monitor, Palette, PenTool,
+  Rocket, Search, Server, Settings, Shield, Star, Terminal, TrendingUp,
+  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb,
+};
+
+const colorMap: Record<string, string> = {
+  blue: "text-blue-500",
+  green: "text-green-500",
+  purple: "text-purple-500",
+  amber: "text-amber-500",
+  red: "text-red-500",
+  pink: "text-pink-500",
+  indigo: "text-indigo-500",
+  teal: "text-teal-500",
+  cyan: "text-cyan-500",
+  orange: "text-orange-500",
+  emerald: "text-emerald-500",
+  rose: "text-rose-500",
+};
+
+interface AboutProps {
+  profile: Profile;
+}
+
+const About: React.FC<AboutProps> = ({ profile }) => {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { about, links } = profile;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("opacity-100");
+            entry.target.classList.remove("opacity-0");
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const elements = sectionRef.current?.querySelectorAll(".animate-on-scroll");
+    elements?.forEach((el) => observer.observe(el));
+
+    return () => {
+      elements?.forEach((el) => observer.unobserve(el));
+    };
+  }, []);
+
+  return (
+    <section
+      id="about"
+      ref={sectionRef}
+      className="py-20 md:py-28 bg-white dark:bg-gray-950"
+    >
+      <div className="container mx-auto px-4 md:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="animate-on-scroll opacity-0 transition-opacity duration-700">
+                <span className="badge bg-secondary text-secondary-foreground mb-6">
+                  About Me
+                </span>
+                <h2 className="section-heading">
+                  Life Enthusiast
+                </h2>
+                {about.bio.map((paragraph, i) => (
+                  <p key={i} className="text-muted-foreground text-lg mb-6">
+                    {paragraph}
+                    {i === about.bio.length - 1 && links.instagram && (
+                      <>
+                        {" "}I invite you to take a look at my Instagram
+                        <a
+                          href={links.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          <b> portfolio</b>
+                        </a>.
+                      </>
+                    )}
+                  </p>
+                ))}
+
+                <div className="flex flex-wrap gap-3 mb-8">
+                  {about.skills.map((skill) => (
+                    <span key={skill} className="badge border-primary/20 bg-primary/5 text-primary shimmer">
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* First column of expertise cards */}
+              <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-300 space-y-4">
+                {about.expertise.filter((_, i) => i % 2 === 0).map((exp, i) => {
+                  const IconComp = iconMap[exp.icon] || Database;
+                  return (
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                      <IconComp
+                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        style={i > 0 ? { animationDelay: `${i * 0.5}s` } : undefined}
+                      />
+                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
+                      <p className="text-muted-foreground">{exp.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Second column of expertise cards */}
+              <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-500 space-y-4 mt-6">
+                {about.expertise.filter((_, i) => i % 2 === 1).map((exp, i) => {
+                  const IconComp = iconMap[exp.icon] || Database;
+                  return (
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                      <IconComp
+                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        style={{ animationDelay: `${(i + 1) * 0.5 + 0.5}s` }}
+                      />
+                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
+                      <p className="text-muted-foreground">{exp.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-200">
+              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect">
+                <BookOpen className="h-10 w-10 text-blue-500 mb-6 icon-float" />
+                <h3 className="text-2xl font-medium mb-4">Education</h3>
+                <ul className="space-y-4">
+                  {about.education.map((edu) => (
+                    <li key={edu.degree}>
+                      <div className="font-medium">{edu.degree}</div>
+                      <div className="text-muted-foreground">{edu.institution} | {edu.period}</div>
+                      {edu.focus && (
+                        <div className="text-sm text-muted-foreground mt-1">Focus: {edu.focus}</div>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-400">
+              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect">
+                <Award className="h-10 w-10 text-amber-500 mb-6 icon-float" style={{ animationDelay: '0.5s' }} />
+                <h3 className="text-2xl font-medium mb-4">Achievements & Certifications</h3>
+                <ul className="space-y-4">
+                  {about.certifications.map((cert) => (
+                    <li key={cert.title}>
+                      <div className="font-medium">{cert.title}</div>
+                      <div className="text-muted-foreground">{cert.description}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default About;

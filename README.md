@@ -1,87 +1,115 @@
-# Mistral Hackathon - Voice API POC
+# Mistral Hackathon - AI Personal Profile Platform
 
-This project provides a minimal proof-of-concept for testing Mistral's voice API capabilities, including speech-to-text and text-to-speech functionality.
+## Current Project Structure
 
-## Features
-
-- Record audio from microphone
-- Transcribe speech to text using Mistral AI
-- Generate text responses
-- Convert text back to speech
-- Simple web interface for testing
-
-## Setup
-
-1. **Install dependencies (using uv and pyproject.toml):**
-   ```bash
-   uv venv
-   uv pip install -e .
-   ```
-
-2. **Set up environment variables:**
-   Create a `.env` file with your API keys:
-   ```
-   MISTRAL_API_KEY=your_mistral_api_key_here
-   ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
-   # Optional: force a specific transcription model
-   MISTRAL_TRANSCRIPTION_MODEL=voxtral-mini-transcribe-latest
-   ```
-
-3. **Install additional requirements:**
-    - For audio recording in the web interface, no additional system libraries are needed
-    - For command-line audio playback, you may need:
-       - Mac: `afplay` (included with macOS)
-       - Linux: `aplay` (install with `sudo apt-get install alsa-utils`)
-   - For ElevenLabs TTS, no extra Python packages are needed (uses `requests`, add to pyproject.toml if missing)
-
-## Running the POC
-
-### Option 1: Command Line Test
-Run the voice API test directly:
-```bash
-python voice_api_test.py
 ```
-- Place an audio file named `input.wav` in the project directory
-- The script will transcribe it and generate a response
-- The response will be saved as `output.wav`
-- Play it with: `afplay output.wav` (Mac) or `aplay output.wav` (Linux)
+Mistral-Hackathon/
+├── .gitignore
+├── .python-version
+├── README.md
+├── check_mistral_api.py      # Python API endpoint checker
+├── main.py                   # Main Python backend
+├── pyproject.toml            # Python project config
+├── uv.lock                   # Python dependencies
+│
+├── # Frontend (Vite + React + TypeScript)
+├── index.html
+├── package-lock.json
+├── package.json
+├── vite.config.ts
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── public/                   # Static assets
+├── src/                      # React components
+├── api/                      # Local API routes
+├── components.json
+├── eslint.config.js
+├── postcss.config.js
+├── server.js
+├── tailwind.config.ts
+└── .env                       # Environment variables
+```
 
-### Option 2: Web Interface
-1. Start the API server:
-   ```bash
-   uv venv
-   uv pip install -e .
-   python api_server.py
-   ```
+## 🚀 Quick Start - Local Development
 
-2. Open `frontend.html` in your web browser
+### 1. Frontend (React + Vite)
+```bash
+npm install
+npm run dev
+```
+- 🌐 Frontend runs on: `http://localhost:5173`
+- ✨ Hot reloading enabled
 
-3. Click "Start Recording", speak, then "Stop Recording"
+### 2. Backend (FastAPI)
+```bash
+# Install dependencies
+uv sync
 
-4. The system will:
-   - Transcribe your speech
-   - Display the transcription
-   - Generate a response
-   - Convert response to speech (using ElevenLabs TTS)
-   - Allow you to play the response
+# Start development server
+uv run main.py
+```
+- 🌐 Backend runs on: `http://localhost:8000`
+- ✨ Auto-reload enabled
+- 🔄 CORS configured for frontend
 
-## Files
+### 3. Test the API
+```bash
+# Health check
+curl http://localhost:8000/health
 
-- `voice_api_test.py` - Core voice API functions
-- `api_server.py` - Flask server for web interface
-- `elevenlabs_tts.py` - ElevenLabs TTS integration
-- `frontend.html` - Simple web interface
-- `pyproject.toml` - Python dependencies
+# Get sample profile
+curl http://localhost:8000/profile/test123
 
-## Troubleshooting
+# Chat endpoint (POST)
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"content":"Hello from frontend!"}'
+```
 
-- **Microphone permission denied**: Check browser microphone permissions
-- **No transcription**: Ensure your Mistral API key is valid and has voice API access
-- **No speech response**: Ensure your ElevenLabs API key is valid and you have quota
-- **Audio playback issues**: Try different audio formats or players
+## Key Features to Implement
 
-## Notes
+### Platform Component (Your Focus)
+1. **User Profile Management**
+   - Profile creation/editing interface
+   - CV upload and parsing
+   - Work experience timeline
+   - Skills and education sections
 
-- This is a minimal POC - error handling is basic
-- The voice API endpoints and models may change as Mistral updates their API
-- For production use, add proper authentication, error handling, and logging
+2. **AI Agent Integration**
+   - Profile data → AI agent training
+   - Conversational interface for recruiters
+   - Session management
+
+3. **Frontend Pages**
+   - Public profile view
+   - Admin dashboard
+   - Chat interface
+   - Analytics dashboard
+
+4. **Database Design**
+   - User profiles collection
+   - Conversation logs
+   - Media storage
+
+### AI Component (Separate Focus)
+- Agent training optimization
+- Conversation quality improvement
+- Context management
+- Response generation
+
+## Current Status
+
+✅ Frontend: Vite+React+TypeScript with shadcn-ui
+✅ Backend: Basic Python structure
+✅ AWS Lambda: Chatbot integration ready
+⚠️ Profile Management: Needs implementation
+⚠️ AI Training Pipeline: Needs implementation
+
+## Next Steps
+
+1. **Implement profile data structure** in `src/services/`
+2. **Create profile pages** in `src/pages/`
+3. **Set up API endpoints** in `api/`
+4. **Connect to database** (Supabase/Firebase/your choice)
+
+Would you like me to help with any specific part of the platform implementation?

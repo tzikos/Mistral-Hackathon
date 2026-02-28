@@ -1,0 +1,142 @@
+/* Mobile and Accessibility Optimizations for TTS PlayButton */
+
+/* Ensure proper touch targets on mobile devices */
+@media (max-width: 768px) {
+  [data-testid^="play-button-"] {
+    min-height: 44px; /* iOS recommended minimum touch target */
+    min-width: 44px;
+    padding: 12px;
+  }
+  
+  /* Increase spacing around play buttons on mobile */
+  .chat-message-container {
+    padding: 8px 12px;
+  }
+  
+  /* Ensure text doesn't wrap awkwardly around play button */
+  .chat-message-footer {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  [data-testid^="play-button-"] {
+    border: 2px solid currentColor;
+  }
+  
+  [data-testid^="play-button-"][data-state="playing"] {
+    background-color: highlight;
+    color: highlighttext;
+  }
+  
+  [data-testid^="play-button-"][data-state="error"] {
+    border-color: red;
+    background-color: rgba(255, 0, 0, 0.1);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  [data-testid^="play-button-"] {
+    transition: none;
+    animation: none;
+  }
+  
+  [data-testid^="play-button-"] * {
+    animation: none;
+  }
+  
+  /* Still allow essential loading indicator */
+  [data-testid^="play-button-"][data-state="loading"] .animate-spin {
+    animation: spin 2s linear infinite;
+  }
+}
+
+/* Focus indicators for keyboard navigation */
+[data-testid^="play-button-"]:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Screen reader only content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Ensure proper color contrast */
+[data-testid^="play-button-"][data-state="error"] {
+  color: #dc2626;
+  border-color: #dc2626;
+}
+
+[data-testid^="play-button-"][data-state="playing"] {
+  color: #2563eb;
+  border-color: #2563eb;
+}
+
+/* Touch feedback for mobile */
+@media (hover: none) and (pointer: coarse) {
+  [data-testid^="play-button-"]:active {
+    transform: scale(0.95);
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Ensure proper spacing in chat messages */
+.chat-message-with-tts {
+  margin-bottom: 16px;
+}
+
+.chat-message-with-tts:last-child {
+  margin-bottom: 8px;
+}
+
+/* Progress indicator visibility */
+.tts-progress-indicator {
+  height: 2px;
+  background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #2563eb 100%);
+  background-size: 200% 100%;
+  animation: progress-shimmer 2s ease-in-out infinite;
+}
+
+@keyframes progress-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Ensure tooltips are accessible */
+[data-tooltip]:hover::after,
+[data-tooltip]:focus::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+/* Hide tooltips on touch devices to prevent interference */
+@media (hover: none) {
+  [data-tooltip]:hover::after,
+  [data-tooltip]:focus::after {
+    display: none;
+  }
+}
