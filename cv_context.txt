@@ -1,0 +1,64 @@
+This is background context about the user (Dimitris Papantzikos). Use it to answer questions about them. If asked something not covered here, say it is not in the CV.
+
+Name: Dimitris Papantzikos
+Role: ML Engineer
+Location: Copenhagen, Denmark
+
+Summary:
+- ML engineer focused on practical AI for healthcare and energy. Experience across the ML lifecycle: pipelines, LLM automation, and production systems.
+
+Education:
+- M.Sc. Mathematical Modelling and Computation, Technical University of Denmark (DTU), 2024-2026. Focus: Machine Learning, Deep Learning, programming.
+- B.Sc. Mathematics, Aristotle University of Thessaloniki, 2016-2021. Focus: Data Analysis.
+
+Professional Experience:
+- Student Worker (AI/ML), Modelling & Optimisation, Vattenfall, Copenhagen (Aug 2025-Present):
+  - Automated technical documentation workflows with LLM assistants.
+  - Built internal AI chatbots for non-technical stakeholders.
+  - Applied supervised learning to physics-based energy optimization.
+- Data & Research Analyst, Recognyte, Remote (Jul 2025-Present):
+  - Built ETL pipelines and automated reporting (Python, PostgreSQL, Tableau).
+  - Developed NLP pipelines and ML-assisted property valuation models.
+  - Created web scraping automation tools.
+- AI Software Developer, Schellinger Capital / Kapital&Connect, Copenhagen (Nov 2022-Aug 2023):
+  - Built ML-driven investor-startup matching systems.
+  - Delivered a user-friendly web application.
+- Data Analyst, Data to Action, Athens (Sep 2023-Aug 2025):
+  - Forecasting models for retail analytics using scikit-learn.
+  - SQL data pipelines and Tableau dashboards.
+  - Web scraping solutions for market data collection.
+
+Selected Projects:
+- Mamba architectures for EEG abnormality detection (2025): benchmarked Mamba models for EEG signals.
+- Plant leaf health classification (MLOps, 2025): GCP Vertex AI training, Cloud Run deployment, Cloud Build, FastAPI backend, Streamlit frontend, CI/CD with GitHub Actions.
+- GradeAid (2025): AI-assisted learning platform using PostgreSQL, LangChain, OpenAI APIs.
+- Automated job scraper & Discord bot (2025): LinkedIn scraping with near-real-time Discord alerts.
+- Copenhagen apartments price prediction (2024): PyTorch NN regression, MAE ~2000 DKK.
+- Patient mortality classification with EHRs (2024): EHRMamba, ~85% accuracy on PhysioNet 2012.
+- Graphical Lasso implementation (2024): NumPy, CVXPY, Matplotlib.
+- GPU thermal simulation (2024): CUDA, Numba, CuPy.
+- Copenhagen apartment finder (2024): Streamlit web scraping + analytics.
+- Personal Tableau projects (2023-2024).
+
+Awards & Talks:
+- 1st place, Valhacks hackathon (BEST x IDA with Accenture, 2025) for a FAISS-based matching solution.
+- Top 4% in Data Art & Storytelling Competition (Data2Speak / Alex Kolokolov, 2024).
+- Speaker, Athens Tableau User Group (03/2024) on data visualization and Tableau projects.
+
+Skills:
+- Python, LLMs/NLP, SQL, Tableau, data ops, R.
+- Tools: pandas, numpy, scikit-learn, PyTorch, selenium, FastAPI, pytest, Streamlit, BeautifulSoup.
+- LLM/RAG: LangChain, OpenAI API, chatbot development.
+- Data: PostgreSQL, pgAdmin4, BI automation.
+- Ops/Cloud: Linux bash, Git/GitHub, GitHub Actions, CI/CD, GCP (Vertex AI, Cloud Run, Cloud Build).
+- Statistics: multivariate statistics, PCA, CCA, visualization.
+- Other: Microsoft SSIS.
+
+Volunteering & Community:
+- Speaker, Athens Tableau User Group (03/2024).
+- Mathematics tutor, Metadrasi (05/2023-05/2024), taught refugee children (ages 12-16).
+
+Interests:
+- Photography (social events, product, portrait).
+- Sports (strength training, running, kickboxing, judo), marathon and triathlon finisher.
+- Hiking and camping.

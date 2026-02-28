@@ -82,12 +82,46 @@
         
         let mediaRecorder;
         let audioChunks = [];
+        let micStream = null;
         
         // Event listeners
         testBtn.addEventListener('click', testConnection);
         recordBtn.addEventListener('click', startRecording);
         stopBtn.addEventListener('click', stopRecording);
         playBtn.addEventListener('click', playResponse);
+
+        // Request microphone permission once on page load
+        async function requestMicOnce() {
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                statusDiv.textContent = 'Microphone ready';
+            } catch (error) {
+                errorDiv.textContent = `Error accessing microphone: ${error.message}`;
+                statusDiv.textContent = 'Microphone access denied';
+            }
+        }
+        requestMicOnce();
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderMarkdown(text) {
+            const escaped = escapeHtml(text || '');
+            let html = escaped
+                .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+                .replace(/\n/g, '<br>');
+            return html;
+        }
         
         // Test CORS connection
         async function testConnection() {
@@ -122,65 +156,79 @@
         async function startRecording() {
             try {
                 errorDiv.textContent = '';
-                statusDiv.textContent = 'Accessing microphone...';
-                
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                statusDiv.textContent = 'Recording...';
+                if (!micStream) {
+                    errorDiv.textContent = 'Microphone not available.';
+                    statusDiv.textContent = 'Microphone not available.';
+                    return;
+                }
+                mediaRecorder = new MediaRecorder(micStream);
                 audioChunks = [];
-                
                 mediaRecorder.start();
                 recordBtn.disabled = true;
                 stopBtn.disabled = false;
-                statusDiv.textContent = 'Recording... (click Stop when finished)';
-                
                 mediaRecorder.ondataavailable = event => {
                     audioChunks.push(event.data);
                 };
-                
                 mediaRecorder.onstop = async () => {
                     statusDiv.textContent = 'Processing audio...';
-                    
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                     const formData = new FormData();
                     formData.append('audio', audioBlob, 'recording.wav');
-                    
                     try {
                         statusDiv.textContent = 'Sending to Mistral API...';
                         const response = await fetch('http://localhost:8000/api/voice', {
                             method: 'POST',
                             body: formData,
-                            mode: 'cors', // Proper JS comment
+                            mode: 'cors',
                             headers: {
                                 'Accept': 'application/json',
                             }
                         });
-                        
                         console.log('Response status:', response.status);
-                        
                         if (!response.ok) {
                             const errorText = await response.text();
                             console.error('Server error details:', errorText);
                             throw new Error(`Server error: ${response.status} - ${errorText}`);
                         }
-                        
                         const result = await response.json();
-                        
-                        if (result.error) {
-                            throw new Error(result.error);
+                        if (result.transcription_error) {
+                            errorDiv.textContent = `Transcription error: ${result.transcription_error}`;
                         }
-                        
-                        transcriptionDiv.textContent = result.transcription || 'No transcription received';
-                        responseDiv.textContent = result.response || 'No response received';
-                        
-                        if (result.audio && result.audio.data) {
-                            const audioBlob = new Blob([new Uint8Array(result.audio.data)], { type: 'audio/wav' });
-                            audioPlayback.src = URL.createObjectURL(audioBlob);
+                        if (result.completion_error) {
+                            errorDiv.textContent = `Completion error: ${result.completion_error}`;
+                        }
+                        if (result.tts_error) {
+                            errorDiv.textContent = `TTS error: ${result.tts_error}`;
+                        }
+                        transcriptionDiv.innerHTML = renderMarkdown(result.transcription || 'No transcription received');
+                        responseDiv.innerHTML = renderMarkdown(result.reply || 'No response received');
+                        if (result.audio && result.audio.base64) {
+                            const format = (result.audio.format || 'mp3').toLowerCase();
+                            const mimeType = format === 'mp3' ? 'audio/mpeg' : `audio/${format}`;
+                            const audioSrc = `data:${mimeType};base64,${result.audio.base64}`;
+                            audioPlayback.src = audioSrc;
                             playBtn.disabled = false;
-                            statusDiv.textContent = 'Ready - click Play Response to hear the answer';
+                            statusDiv.textContent = `Playing response... (audio length: ${result.audio.base64.length})`;
+                            // Ensure audio loads before playing
+                            audioPlayback.load();
+                            audioPlayback.oncanplaythrough = () => {
+                                audioPlayback.play().catch(e => {
+                                    errorDiv.textContent = `Audio playback error: ${e.message}`;
+                                    console.error('Audio playback error:', e);
+                                });
+                            };
+                            audioPlayback.onerror = (e) => {
+                                errorDiv.textContent = 'Audio element error: Could not play response.';
+                                console.error('Audio element error:', e);
+                            };
                         } else {
+                            playBtn.disabled = true;
                             statusDiv.textContent = 'Response received (no audio)';
+                            if (result.tts_error) {
+                                errorDiv.textContent = `TTS error: ${result.tts_error}`;
+                            }
                         }
-                        
                     } catch (error) {
                         errorDiv.textContent = `Error: ${error.message}`;
                         statusDiv.textContent = 'Error occurred';
