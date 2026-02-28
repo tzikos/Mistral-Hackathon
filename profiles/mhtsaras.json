@@ -1,0 +1,317 @@
+{
+  "id": "mhtsaras",
+  "name": "Dimitris Papantzikos",
+  "headline": "ML Engineer applying AI to healthcare and energy",
+  "badge": "AI-ML-Healthcare-Energy",
+  "description": "Machine Learning Engineer with hands-on experience in building ML pipelines, automating documentation with LLMs, and deploying production systems. Focused on delivering real-world impact through AI.",
+  "avatar": null,
+  "about": {
+    "bio": [
+      "ML engineer focused on applying AI to practical problems in healthcare and energy. I break work down to first principles and have hands-on experience across the lifecycle: building ML pipelines, automating documentation with LLMs, and deploying production systems.",
+      "Currently pursuing an M.Sc. in Mathematical Modelling and Computation at DTU; motivated by projects where AI delivers real and visible impact, (in)directly enhancing people's lives."
+    ],
+    "skills": [
+      "Python",
+      "pandas",
+      "numpy",
+      "scikit-learn",
+      "PyTorch",
+      "selenium",
+      "FastAPI",
+      "pytest",
+      "Streamlit",
+      "BeautifulSoup",
+      "LangChain",
+      "retrieval-augmented generation",
+      "OpenAI API",
+      "PostgreSQL",
+      "Tableau",
+      "Linux",
+      "bash scripting",
+      "Git",
+      "GitHub",
+      "GitHub Actions",
+      "CI/CD",
+      "Google Cloud (Vertex AI, Cloud Run, Cloud Build)",
+      "R",
+      "Microsoft SSIS"
+    ],
+    "expertise": [
+      {
+        "title": "Machine Learning",
+        "description": "Building and deploying ML models for practical applications in healthcare and energy.",
+        "icon": "Brain",
+        "color": "blue"
+      },
+      {
+        "title": "LLM Automation",
+        "description": "Automating documentation and chatbot development using LLM-powered assistants.",
+        "icon": "Terminal",
+        "color": "green"
+      },
+      {
+        "title": "Data Engineering",
+        "description": "Developing ETL pipelines, SQL-based data acquisition, and web scraping solutions.",
+        "icon": "Server",
+        "color": "purple"
+      },
+      {
+        "title": "Cloud Deployment",
+        "description": "Deploying ML models on Google Cloud using Vertex AI, Cloud Run, and Cloud Build.",
+        "icon": "Cloud",
+        "color": "amber"
+      }
+    ],
+    "education": [
+      {
+        "degree": "M.Sc. Mathematical Modelling and Computation",
+        "institution": "Technical University of Denmark (DTU)",
+        "period": "2024-2026",
+        "focus": "Machine Learning, Deep Learning and programming"
+      },
+      {
+        "degree": "B.Sc. Mathematics",
+        "institution": "Aristotle University of Thessaloniki",
+        "period": "2016-2021",
+        "focus": "Data Analysis"
+      }
+    ],
+    "certifications": []
+  },
+  "portfolio": {
+    "projects": [
+      {
+        "id": 0,
+        "title": "Mamba Architectures for EEG Signal Abnormality Detection",
+        "description": "Benchmarked Mamba models for detecting abnormalities in EEG signals.",
+        "detailedDescription": null,
+        "tags": [
+          "Mamba models",
+          "EEG",
+          "benchmarking"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Machine Learning Operations | Plant Leaf Health Classification",
+        "description": "Trained and deployed a plant leaf health model on Google Cloud using Vertex AI, Cloud Run, and Cloud Build.",
+        "detailedDescription": "Used FastAPI for the backend, Streamlit for the frontend, version control with Git/GitHub, and CI/CD with GitHub Actions.",
+        "tags": [
+          "Google Cloud (Vertex AI | Cloud Run | Cloud Build)",
+          "FastAPI",
+          "Streamlit",
+          "Git",
+          "GitHub Actions"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 2,
+        "title": "GradeAid \u2014 AI-Assisted Learning Platform",
+        "description": "Built a full-stack learning assistant using PostgreSQL, LangChain, and OpenAI APIs.",
+        "detailedDescription": null,
+        "tags": [
+          "PostgreSQL",
+          "LangChain",
+          "OpenAI API",
+          "full-stack"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 3,
+        "title": "Automated Job Scraper & Discord Bot",
+        "description": "LinkedIn scraping pipeline with near-real-time Discord notifications.",
+        "detailedDescription": null,
+        "tags": [
+          "Web scraping",
+          "automation",
+          "Discord bots"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 4,
+        "title": "Copenhagen Apartments | Boligportal Rental Price Prediction",
+        "description": "Built a feed-forward neural network with PyTorch to predict rental prices from apartment features.",
+        "detailedDescription": "Achieved a mean absolute error of 2,000 DKK.",
+        "tags": [
+          "PyTorch",
+          "neural networks",
+          "regression",
+          "model evaluation"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 5,
+        "title": "Patient Mortality Classification with Electronic Health Records",
+        "description": "Re-developed the EHRMamba model for the PhysioNet 2012 dataset with PyTorch.",
+        "detailedDescription": "Leveraged DTU GPU resources to reach ~85% accuracy for early patient mortality prediction.",
+        "tags": [
+          "PyTorch",
+          "deep learning",
+          "EHRMamba",
+          "GPU training"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 6,
+        "title": "Graphical Lasso Implementation",
+        "description": "Implemented sparse inverse covariance estimation using NumPy, CVXPY, and Matplotlib.",
+        "detailedDescription": null,
+        "tags": [
+          "NumPy",
+          "CVXPY",
+          "Matplotlib",
+          "graphical models"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 7,
+        "title": "HPC Thermal Simulation",
+        "description": "GPU-accelerated heat diffusion simulation using CUDA, Numba, and CuPy.",
+        "detailedDescription": null,
+        "tags": [
+          "CUDA",
+          "Numba",
+          "CuPy",
+          "GPU acceleration"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 8,
+        "title": "Copenhagen Apartment Finder",
+        "description": "Web scraping and analytics platform built with Streamlit.",
+        "detailedDescription": null,
+        "tags": [
+          "Streamlit",
+          "web scraping",
+          "analytics"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 9,
+        "title": "Personal Tableau Projects",
+        "description": "Collection of Tableau dashboards exploring diverse datasets and storytelling angles.",
+        "detailedDescription": null,
+        "tags": [
+          "Tableau",
+          "data storytelling"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "workExperience": [
+      {
+        "id": 0,
+        "title": "Student Worker (AI/ML) @ VATTENFALL",
+        "description": "Automated technical documentation workflows and developed internal AI chatbots for non-technical stakeholders.",
+        "detailedDescription": "Applied supervised learning to physics-based energy optimisation problems.",
+        "tags": [
+          "LLMs",
+          "retrieval-augmented generation",
+          "supervised learning",
+          "wake modelling"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "AI Software Developer @ SCHELLINGER CAPITAL / KAPITAL&CONNECT",
+        "description": "Built ML-driven systems for automated investor-startup matching and delivered a user-friendly web application.",
+        "detailedDescription": null,
+        "tags": [
+          "Machine learning",
+          "matching algorithms",
+          "web applications"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 2,
+        "title": "Data & Research Analyst @ RECOGNYTE",
+        "description": "Built ETL pipelines, automated reporting systems, and developed NLP pipelines for property valuation models.",
+        "detailedDescription": "Created Python-based web scraping automation tools.",
+        "tags": [
+          "Python",
+          "PostgreSQL",
+          "Tableau",
+          "BI automation",
+          "NLP",
+          "web scraping"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 3,
+        "title": "Data Analyst @ DATA TO ACTION",
+        "description": "Implemented forecasting models for retail analytics and built SQL-based data acquisition pipelines.",
+        "detailedDescription": "Developed web scraping solutions for market data collection and created Tableau dashboards.",
+        "tags": [
+          "scikit-learn",
+          "SQL pipelines",
+          "Tableau",
+          "web scraping",
+          "forecasting"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "talksAndAwards": [
+      {
+        "id": 0,
+        "title": "1st place, Valhacks hackathon (BEST x IDA with Accenture, 2025)",
+        "description": "Awarded for a feature-engineered matching solution using FAISS vector stores.",
+        "detailedDescription": null,
+        "tags": [],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Top 4% in Data Art & Storytelling Competition (Data2Speak / Alex Kolokolov, 2024)",
+        "description": "Finalist dashboard in a data visualization competition.",
+        "detailedDescription": null,
+        "tags": [],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 2,
+        "title": "Speaker, Athens Tableau User Group (03/2024)",
+        "description": "Presented data visualization practices and personal Tableau projects.",
+        "detailedDescription": null,
+        "tags": [
+          "Tableau",
+          "data visualization"
+        ],
+        "image": "",
+        "link": null
+      }
+    ]
+  },
+  "links": {
+    "cv": "/api/uploads/mhtsaras/cv.pdf",
+    "github": "https://github.com/tzikos"
+  }
+}

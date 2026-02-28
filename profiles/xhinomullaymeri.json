@@ -1,0 +1,171 @@
+{
+  "id": "xhinomullaymeri",
+  "name": "Xhino Mullaymeri",
+  "headline": "AI/ML/LLM Engineer specializing in financial crime solutions",
+  "badge": "AI-ML-LLM",
+  "description": "Engineer with 4 years of experience in machine learning and large language models, delivering AI-driven solutions from research to deployment.",
+  "avatar": null,
+  "voice_id": "wjcyL7Y71e4DlxMYblZQ",
+  "about": {
+    "bio": [
+      "Engineer with 4 years of experience specializing in machine learning and large language models (LLMs). Skilled at identifying complex problems, designing ML/AI/data-driven solutions, and building robust systems from research to deployment.",
+      "An early adopter who stays at the forefront of AI advancements, proactively leveraging emerging tools and techniques to deliver innovative solutions. Looking to apply this expertise to solving real-world problems and driving impact."
+    ],
+    "skills": [
+      "Python",
+      "pandas",
+      "NumPy",
+      "scikit-learn",
+      "matplotlib",
+      "Gradio",
+      "Jupyter",
+      "PyTorch",
+      "SQL",
+      "Git",
+      "CI/CD",
+      "Docker",
+      "CLI",
+      "Jira",
+      "Confluence",
+      "LangChain",
+      "LangGraph",
+      "Adaptability",
+      "Problem-Solving",
+      "Collaboration"
+    ],
+    "expertise": [
+      {
+        "title": "Machine Learning",
+        "description": "Expertise in supervised and unsupervised learning, model training, evaluation, and deployment.",
+        "icon": "Brain",
+        "color": "blue"
+      },
+      {
+        "title": "Generative AI",
+        "description": "Specialization in LLMs, RAG, fine-tuning, prompt engineering, and evaluation frameworks.",
+        "icon": "Cpu",
+        "color": "purple"
+      },
+      {
+        "title": "Data Science",
+        "description": "Proficient in data wrangling, EDA, statistical modeling, and visualization.",
+        "icon": "LineChart",
+        "color": "green"
+      },
+      {
+        "title": "Anti-Money Laundering",
+        "description": "Developed AI/ML-driven solutions to detect and prevent financial crime.",
+        "icon": "Shield",
+        "color": "amber"
+      }
+    ],
+    "education": [
+      {
+        "degree": "MSc (Industry), Human-Centered Artificial Intelligence",
+        "institution": "Technical University of Denmark",
+        "period": "2022-Present",
+        "focus": "Thesis: \"Can LLM systems replace Chemical Engineers?\""
+      },
+      {
+        "degree": "BSc, Applied Informatics",
+        "institution": "University of Macedonia, Greece",
+        "period": "2015-2021",
+        "focus": "Thesis: \"A two-party private string matching fuzzy vault scheme\""
+      }
+    ],
+    "certifications": []
+  },
+  "portfolio": {
+    "projects": [
+      {
+        "id": 0,
+        "title": "League of Fusions",
+        "description": "Innovated a captivating game utilizing DALL-E 3's AI image generation capabilities, overseeing all backend development tasks.",
+        "detailedDescription": null,
+        "tags": [
+          "DALL-E 3",
+          "AI Image Generation",
+          "Backend Development"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Coronosms",
+        "description": "A simple Android app created with 2k+ downloads to ease life during COVID-19 quarantine in Greece.",
+        "detailedDescription": null,
+        "tags": [
+          "Android",
+          "Mobile App"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "workExperience": [
+      {
+        "id": 0,
+        "title": "ML / AI / LLM Engineer - Research | Oracle Labs, Copenhagen",
+        "description": "Delivered multiple projects developing AI/ML-driven Anti-Money Laundering (AML) solutions to detect and prevent financial crime.",
+        "detailedDescription": "Applied LLM advanced techniques including retrieval-augmented generation (RAG), LLM tools integration, fine-tuning, and prompt engineering. Designed and ran LLM evaluation frameworks, collaborating with subject matter experts (SMEs) and using LLM-as-a-judge approaches. Built prototypes and pipelines leveraging LangChain/LangGraph. Improved the time performance of the main entity resolution task by ~40%.",
+        "tags": [
+          "LLMs",
+          "RAG",
+          "Fine-Tuning",
+          "Prompt Engineering",
+          "LangChain",
+          "LangGraph",
+          "AML",
+          "CI/CD"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Robotics Instructor | Robotics Academy UoM, Thessaloniki",
+        "description": "Taught educational robotics to diverse age groups and developed curriculum.",
+        "detailedDescription": "Curriculum development and R&D in educational robotics. Trained and mentored 20 instructors across Greece.",
+        "tags": [
+          "Educational Robotics",
+          "Curriculum Development",
+          "Mentoring"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "talksAndAwards": [
+      {
+        "id": 0,
+        "title": "World Robot Olympiad (WRO) Advanced Robotics Challenge",
+        "description": "Participated in international robotics competition with 3 fellow students.",
+        "detailedDescription": "2017: 1st place, WRO ARC National Championship (Greece); 16th place globally, WRO International Final, Costa Rica. 2018: 2nd place WRO ARC Greece. Presented robotic prototypes at Thessaloniki International Fair (TIF), 2017-2019.",
+        "tags": [
+          "Robotics",
+          "Competition",
+          "Prototyping"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Publications",
+        "description": "Published research papers on privacy-preserving record linkage.",
+        "detailedDescription": "- Using Fuzzy Vaults for Privacy Preserving Record Linkage. DOLAP. 2021.\n- A two-party private string matching fuzzy vault scheme. Proceedings of the 36th annual ACM symposium on applied computing. 2021.",
+        "tags": [
+          "Research",
+          "Privacy",
+          "Record Linkage"
+        ],
+        "image": "",
+        "link": null
+      }
+    ]
+  },
+  "links": {
+    "cv": "/api/uploads/xhinomullaymeri/cv_Xhino_Mullaymeri.pdf"
+  }
+}

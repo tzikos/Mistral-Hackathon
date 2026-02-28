@@ -1,0 +1,229 @@
+{
+  "id": "michalisdikaiopoulos2",
+  "name": "Michail Dikaiopoulos",
+  "headline": "Human-Centered AI researcher and software engineer",
+  "badge": "AI-Research-Software-Engineering",
+  "description": "MSc candidate in Human-Centered AI with expertise in diffusion models and AI safety, backed by three years of software engineering experience.",
+  "avatar": "/api/uploads/michalisdikaiopoulos2/7e01eb9752a1790e.jpeg",
+  "voice_id": "rNyeMuOcka9E6qOvIYUD",
+  "about": {
+    "bio": [
+      "MSc candidate in Human-Centered AI at the Technical University of Denmark (DTU), currently researching Riemannian Diffusion Models with a focus on safety considerations.",
+      "With three years of professional software engineering experience, including sole ownership of an AI product, I am seeking research positions in challenging domains to relocate to the Netherlands.",
+      "Passionate about combining technical expertise with a human-centered approach to AI development."
+    ],
+    "skills": [
+      "Python",
+      "PyTorch",
+      "JAX",
+      "NumPy",
+      "scikit-learn",
+      "Hydra",
+      "Optuna",
+      "HuggingFace",
+      "SQL",
+      "Docker",
+      "Linux",
+      "LaTeX",
+      "Git",
+      "Jupyter",
+      "Overleaf",
+      "Zotero",
+      "Diffusion Models",
+      "Variational Inference",
+      "Bayesian Methods",
+      "Stochastic Processes",
+      "Differential Geometry",
+      "AI Safety"
+    ],
+    "expertise": [
+      {
+        "title": "Riemannian Diffusion Models",
+        "description": "Researching methods to incorporate safety constraints into score-based generative models on Riemannian manifolds.",
+        "icon": "Brain",
+        "color": "blue"
+      },
+      {
+        "title": "AI Safety",
+        "description": "Exploring techniques to ensure safe and responsible AI development and deployment.",
+        "icon": "Shield",
+        "color": "green"
+      },
+      {
+        "title": "Full-Stack AI Engineering",
+        "description": "Developing end-to-end AI solutions, from backend services to LLM-powered interfaces.",
+        "icon": "Code",
+        "color": "purple"
+      },
+      {
+        "title": "Dynamic Pricing Systems",
+        "description": "Designing and deploying microservices for dynamic pricing to optimize revenue.",
+        "icon": "TrendingUp",
+        "color": "amber"
+      }
+    ],
+    "education": [
+      {
+        "degree": "Master of Human-Centered AI",
+        "institution": "Technical University of Denmark",
+        "period": "2024-2026",
+        "focus": "Advanced Topics in Deep Learning, Advanced Machine Learning, Responsible AI and Explainability, Generative models"
+      },
+      {
+        "degree": "Bachelor of Computer Science",
+        "institution": "Athens University of Economics and Business",
+        "period": "2018-2022",
+        "focus": null
+      }
+    ],
+    "certifications": []
+  },
+  "portfolio": {
+    "projects": [
+      {
+        "id": 0,
+        "title": "(MSc Thesis) - Riemannian Diffusion Models with Safety Considerations",
+        "description": "Investigating methods for incorporating safety constraints into score-based generative models on Riemannian manifolds.",
+        "detailedDescription": "Implemented the RSGM framework (De Bortoli et al., NeurIPS 2022) with JAX using geodesic random walks and denoising score matching, exploring inference-time score modification techniques including barrier-augmented functions for avoiding interior obstacle regions.",
+        "tags": [
+          "JAX",
+          "Diffusion Models",
+          "Riemannian Geometry",
+          "AI Safety"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "(BSc Thesis) - Forward-Looking Best-Response Multiplicative Weights Update for Zero-Sum Games",
+        "description": "Implemented and benchmarked the FLBR-MWU algorithm for finding Nash equilibria in bilinear zero-sum games.",
+        "detailedDescription": "Conducted extensive experiments with 20x20 game matrices across three payoff distributions and demonstrated 84x faster convergence compared to OMWU baseline using Python, NumPy, and Jupyter Notebook with $10^{6}$ iteration benchmarks.",
+        "tags": [
+          "Python",
+          "NumPy",
+          "Game Theory",
+          "Algorithms"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 2,
+        "title": "Lottery Ticket Hypothesis Study",
+        "description": "Reproduced and extended the Lottery Ticket Hypothesis across CNN, VGG, and BERT.",
+        "detailedDescription": "Implemented iterative magnitude pruning and few-shot transfer learning with ensemble sparse sub-networks in PyTorch.",
+        "tags": [
+          "PyTorch",
+          "Deep Learning",
+          "Model Pruning"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 3,
+        "title": "Patient Mortality Classification with Electronic Health Records",
+        "description": "Re-developed the EHRMamba model for early patient mortality prediction.",
+        "detailedDescription": "Achieved 85% accuracy on the Physionet2012 dataset using PyTorch and DTU GPU resources.",
+        "tags": [
+          "PyTorch",
+          "Healthcare AI",
+          "EHR"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 4,
+        "title": "Machine Learning Operations - Plant Leaf Health Classification",
+        "description": "Trained and deployed a plant leaf health model on Google Cloud.",
+        "detailedDescription": "Used Vertex AI, Cloud Run, FastAPI, Streamlit, Docker, and CI/CD with GitHub Actions.",
+        "tags": [
+          "MLOps",
+          "Google Cloud",
+          "Docker",
+          "FastAPI"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 5,
+        "title": "Multi-Agent AI System for Hospital Domain Coordination",
+        "description": "Implemented Conflict-Based Search (CBS) with A* for multi-agent pathfinding.",
+        "detailedDescription": "Developed a system for coordination under time and action constraints in hospital domains.",
+        "tags": [
+          "AI",
+          "Multi-Agent Systems",
+          "Pathfinding"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 6,
+        "title": "HPC Thermal Simulation",
+        "description": "GPU-accelerated heat diffusion simulation using CUDA.",
+        "detailedDescription": "Developed a high-performance computing solution using CUDA, Numba, and CuPy.",
+        "tags": [
+          "CUDA",
+          "HPC",
+          "Numba",
+          "CuPy"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "workExperience": [
+      {
+        "id": 0,
+        "title": "AI & Full-Stack Engineer - Leadership Advisor Group",
+        "description": "Developed an end-to-end solution for producing deliverable Board and C-Suite evaluation reports.",
+        "detailedDescription": "Sole owner of the solution for its entire lifecycle, producing high-level results in less than a year of development. Combined interface, backend, and an LLM prompting pipeline for automated report generation.",
+        "tags": [
+          "Python",
+          "LLM",
+          "Full-Stack",
+          "Backend"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 1,
+        "title": "Teaching Assistant - Technical University of Denmark",
+        "description": "Assisted in teaching the MSc course Python and High-Performance Computing.",
+        "detailedDescription": null,
+        "tags": [
+          "Python",
+          "HPC",
+          "Teaching"
+        ],
+        "image": "",
+        "link": null
+      },
+      {
+        "id": 2,
+        "title": "Backend Software Engineer - Blueground",
+        "description": "Developed a dynamic pricing microservice and backend services in Kotlin.",
+        "detailedDescription": "Responsible for a dynamic pricing microservice that supported company's pricing operations and increased revenue. Collaborated with product and data teams to define pricing logic and requirements.",
+        "tags": [
+          "Kotlin",
+          "Backend",
+          "Dynamic Pricing",
+          "Microservices"
+        ],
+        "image": "",
+        "link": null
+      }
+    ],
+    "talksAndAwards": []
+  },
+  "links": {
+    "cv": "/api/uploads/michalisdikaiopoulos2/Michail_Dikaiopoulos_CV.pdf",
+    "linkedIn": "LinkedIn profile",
+    "github": "Github page"
+  }
+}
