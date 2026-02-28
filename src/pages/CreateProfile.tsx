@@ -341,6 +341,108 @@ function FileUpload({
   );
 }
 
+// ── CV progress overlay ─────────────────────────────────────
+
+const CV_STAGES = [
+  { label: "Uploading CV...", target: 15 },
+  { label: "Running OCR on document...", target: 40 },
+  { label: "Extracting profile data with AI...", target: 75 },
+  { label: "Finalizing your profile...", target: 95 },
+];
+
+function CvProgressOverlay() {
+  const [progress, setProgress] = useState(0);
+  const [stageIdx, setStageIdx] = useState(0);
+
+  useEffect(() => {
+    let frame: number;
+    let start: number | null = null;
+
+    // Total simulated duration ~12s across all stages
+    const stageDurations = [1200, 3000, 5000, 2800];
+
+    const tick = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+
+      // Figure out which stage we're in and interpolate
+      let accumulated = 0;
+      let currentStage = 0;
+      let stageProgress = 0;
+
+      for (let i = 0; i < stageDurations.length; i++) {
+        if (elapsed < accumulated + stageDurations[i]) {
+          currentStage = i;
+          stageProgress = (elapsed - accumulated) / stageDurations[i];
+          break;
+        }
+        accumulated += stageDurations[i];
+        if (i === stageDurations.length - 1) {
+          currentStage = i;
+          stageProgress = 1;
+        }
+      }
+
+      setStageIdx(currentStage);
+
+      const prevTarget = currentStage > 0 ? CV_STAGES[currentStage - 1].target : 0;
+      const currTarget = CV_STAGES[currentStage].target;
+      // Ease-out curve for natural feel
+      const eased = 1 - Math.pow(1 - Math.min(stageProgress, 1), 2);
+      const pct = prevTarget + (currTarget - prevTarget) * eased;
+      setProgress(Math.min(pct, 95));
+
+      if (elapsed < accumulated + stageDurations[currentStage]) {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
+      <div className="relative w-36 h-36 mb-6">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+          {/* Background circle */}
+          <circle
+            cx="60" cy="60" r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            className="text-muted-foreground/20"
+          />
+          {/* Progress circle */}
+          <circle
+            cx="60" cy="60" r={radius}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="8"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            className="text-primary transition-[stroke-dashoffset] duration-300 ease-out"
+          />
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold tabular-nums">
+            {Math.round(progress)}%
+          </span>
+        </div>
+      </div>
+      <h2 className="text-xl font-semibold mb-2">Analyzing your CV</h2>
+      <p className="text-muted-foreground text-sm transition-opacity duration-300">
+        {CV_STAGES[stageIdx].label}
+      </p>
+    </div>
+  );
+}
+
 // ── Main wizard component ───────────────────────────────────
 
 const CreateProfile = () => {
@@ -544,15 +646,9 @@ const CreateProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
-      {/* CV parsing overlay */}
+      {/* CV parsing overlay with progress */}
       {parsingCv && (
-        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
-          <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Analyzing your CV...</h2>
-          <p className="text-muted-foreground text-sm">
-            Using AI to extract your profile information. This may take a few seconds.
-          </p>
-        </div>
+        <CvProgressOverlay />
       )}
 
       {/* CV warning banner */}

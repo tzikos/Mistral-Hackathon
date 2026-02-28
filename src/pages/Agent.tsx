@@ -53,6 +53,31 @@ const Agent = () => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat, status]);
 
+  // Cleanup on unmount: stop audio, recording, and mic streams
+  useEffect(() => {
+    return () => {
+      // Stop any playing audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+      // Stop recording if active
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state === "recording"
+      ) {
+        mediaRecorderRef.current.stop();
+      }
+      // Stop all mic tracks
+      if (mediaRecorderRef.current?.stream) {
+        mediaRecorderRef.current.stream
+          .getTracks()
+          .forEach((t) => t.stop());
+      }
+    };
+  }, []);
+
   const startRecording = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
