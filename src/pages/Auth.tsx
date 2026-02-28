@@ -93,14 +93,24 @@ const Auth = () => {
             </Button>
           </form>
 
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <button
-              className="text-primary hover:underline"
-              onClick={() => navigate("/create")}
-            >
-              Create Profile
-            </button>
+          <div className="mt-4 text-center text-sm text-muted-foreground space-y-2">
+            <div>
+              Don't have an account?{" "}
+              <button
+                className="text-primary hover:underline"
+                onClick={() => navigate("/create")}
+              >
+                Create Profile
+              </button>
+            </div>
+            <div>
+              <button
+                className="text-muted-foreground hover:text-foreground underline text-xs"
+                onClick={() => navigate("/")}
+              >
+                ← Back to search
+              </button>
+            </div>
           </div>
         </CardContent>
       </Card>

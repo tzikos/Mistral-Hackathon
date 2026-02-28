@@ -84,6 +84,12 @@ def db_upsert_profile(profile_id: str, data: dict) -> None:
     get_supabase().table("profiles").upsert({"id": profile_id, "data": data}).execute()
 
 
+def db_get_all_profiles_raw() -> list[dict]:
+    """Return all rows as [{"id": str, "data": {...}}, ...] for search/scoring."""
+    result = get_supabase().table("profiles").select("id, data").execute()
+    return result.data
+
+
 # ── User helpers ──────────────────────────────────────────────
 
 

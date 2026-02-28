@@ -2,7 +2,14 @@ from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse
 
 from config import UPLOADS_DIR
-from db import db_list_profiles, db_get_profile, db_create_profile, db_upsert_profile
+from db import (
+    db_list_profiles,
+    db_get_profile,
+    db_create_profile,
+    db_upsert_profile,
+    db_get_all_profiles_raw,
+)
+from services.search import search_profiles
 from models import Profile
 
 router = APIRouter()
@@ -17,6 +24,15 @@ def read_profile(profile_id: str) -> dict:
 def list_profiles():
     """List all available profiles (id + name only)."""
     return db_list_profiles()
+
+
+@router.get("/profiles/search")
+def search_profiles_endpoint(q: str = ""):
+    """Search profiles by free text. Returns ranked lightweight profile cards."""
+    if not q.strip():
+        return []
+    rows = db_get_all_profiles_raw()
+    return search_profiles(rows, q)
 
 
 @router.get("/profile/{profile_id}")
