@@ -1,0 +1,66 @@
+{
+  "id": "michalisdikaiopoulosa",
+  "name": "Michalis Dikaiopoulos",
+  "headline": "Head of AI",
+  "badge": "Deep Learning",
+  "description": "Head of AI",
+  "avatar": "/api/uploads/michalisdikaiopoulosa/id_photo.jpeg",
+  "about": {
+    "bio": [
+      "Head of AI "
+    ],
+    "skills": [
+      "Python",
+      "AI",
+      "mA"
+    ],
+    "expertise": [
+      {
+        "title": "Data Engineering",
+        "description": "...",
+        "icon": "Database",
+        "color": "indigo"
+      }
+    ],
+    "education": [
+      {
+        "degree": "MSC HC-AI",
+        "institution": "DTU",
+        "period": "2024-2026",
+        "focus": "ML"
+      }
+    ],
+    "certifications": [
+      {
+        "title": "Head of AI",
+        "description": ""
+      }
+    ]
+  },
+  "portfolio": {
+    "projects": [
+      {
+        "id": 0,
+        "title": "Project 1",
+        "description": "Good project",
+        "tags": [],
+        "image": "",
+        "detailedDescription": "Very good in general"
+      }
+    ],
+    "workExperience": [
+      {
+        "id": 1,
+        "title": "Head of AI",
+        "description": "HEAD",
+        "tags": [],
+        "image": "",
+        "detailedDescription": "HEAD"
+      }
+    ],
+    "talksAndAwards": []
+  },
+  "links": {
+    "cv": "/api/uploads/michalisdikaiopoulosa/Michail_Dikaiopoulos_CV.pdf"
+  }
+}

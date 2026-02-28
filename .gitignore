@@ -1,4 +1,6 @@
+# =========================
 # Logs
+# =========================
 logs
 *.log
 npm-debug.log*
@@ -7,15 +9,38 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# =========================
+# Dependencies
+# =========================
+node_modules/
+.venv/
 
-# Editor directories and files
+# =========================
+# Build output
+# =========================
+dist/
+dist-ssr/
+.vite/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.local
+.env.*.local
+
+# =========================
+# Runtime data (user-generated)
+# =========================
+uploads/
+users/
+
+# =========================
+# Editor / OS files
+# =========================
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -23,28 +48,18 @@ dist-ssr
 *.sln
 *.sw?
 .qodo
-.env
 .kiro
+
+# =========================
+# Other
+# =========================
+*.local
 lambda/
 
-# Dependencies
-node_modules/
-.venv/
-
-# Build cache
-.vite/
-
-# Lock files (pick one - keep either bun.lockb OR package-lock.json, not both)
-# If using npm: keep package-lock.json, ignore bun.lockb
+# =========================
+# Lock files
+# =========================
 bun.lockb
-# If using bun: keep bun.lockb, ignore package-lock.json
-# package-lock.json
+# (Keep package-lock.json for npm projects)
 
-# Runtime data (likely user-generated content)
-uploads/
-users/
-
-# Environment
-.env
-.env.local
-.env.*.local
+__pycache__/

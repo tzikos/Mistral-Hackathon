@@ -1,10 +1,42 @@
 
 import React, { useEffect, useRef } from "react";
-import { Database, Code, Activity, LineChart, BookOpen, Award } from "lucide-react";
-import { MessageCircle } from "lucide-react"; // Adjust the import based on your icon library
+import {
+  Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
+  Cpu, Globe, Heart, Layers, Lock, Mail, Monitor, Palette, PenTool,
+  Rocket, Search, Server, Settings, Shield, Star, Terminal, TrendingUp,
+  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb,
+} from "lucide-react";
+import { Profile } from "@/types/profile";
 
-const About = () => {
+const iconMap: Record<string, React.ElementType> = {
+  Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
+  Cpu, Globe, Heart, Layers, Lock, Mail, Monitor, Palette, PenTool,
+  Rocket, Search, Server, Settings, Shield, Star, Terminal, TrendingUp,
+  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb,
+};
+
+const colorMap: Record<string, string> = {
+  blue: "text-blue-500",
+  green: "text-green-500",
+  purple: "text-purple-500",
+  amber: "text-amber-500",
+  red: "text-red-500",
+  pink: "text-pink-500",
+  indigo: "text-indigo-500",
+  teal: "text-teal-500",
+  cyan: "text-cyan-500",
+  orange: "text-orange-500",
+  emerald: "text-emerald-500",
+  rose: "text-rose-500",
+};
+
+interface AboutProps {
+  profile: Profile;
+}
+
+const About: React.FC<AboutProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { about, links } = profile;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -44,69 +76,68 @@ const About = () => {
                 <h2 className="section-heading">
                   Life Enthusiast
                 </h2>
-                <p className="text-muted-foreground text-lg mb-6">
-                  I'm a Data guy with a mathematical background, currently pursuing an M.Sc. in Mathematical Modelling and Computation at DTU in Copenhagen, Denmark, with a focus on Machine Learning and AI. My professional journey mostly combines data visualizations and effective storytelling to deliver actionable insights, but also ad-hoc solutions to engineering problems.
-                </p>
-                <p className="text-muted-foreground text-lg mb-8">
-                  Usually you'll find me engaged in sports like calisthenics, weightlifting, running, kickboxing, judo or exploring the outdoors through hiking and camping. Photography is another passion that helps me capture and share the world from a different perspective and I invite you to take a look at my Instagram
-                  <a
-                    href="https://www.instagram.com/dpadventures"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    <b> portfolio</b>
-                  </a>.
-                </p>
+                {about.bio.map((paragraph, i) => (
+                  <p key={i} className="text-muted-foreground text-lg mb-6">
+                    {paragraph}
+                    {i === about.bio.length - 1 && links.instagram && (
+                      <>
+                        {" "}I invite you to take a look at my Instagram
+                        <a
+                          href={links.instagram}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          <b> portfolio</b>
+                        </a>.
+                      </>
+                    )}
+                  </p>
+                ))}
 
                 <div className="flex flex-wrap gap-3 mb-8">
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Python</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">SQL</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Tableau</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Machine Learning</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Google Cloud</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Docker</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">R</span>
-                  <span className="badge border-primary/20 bg-primary/5 text-primary shimmer">Git/GitHub</span>
+                  {about.skills.map((skill) => (
+                    <span key={skill} className="badge border-primary/20 bg-primary/5 text-primary shimmer">
+                      {skill}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              {/* First column of expertise cards */}
               <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-300 space-y-4">
-                <div className="glass-card p-6 hover-lift gradient-border card-3d">
-                  <Database className="h-10 w-10 text-blue-500 mb-4 icon-float" />
-                  <h3 className="text-xl font-medium mb-2">Data Engineering</h3>
-                  <p className="text-muted-foreground">
-                    Building automated pipelines and preprocessing workflows for complex datasets.
-                  </p>
-                </div>
-
-                <div className="glass-card p-6 hover-lift gradient-border card-3d">
-                  <LineChart className="h-10 w-10 text-green-500 mb-4 icon-float" style={{ animationDelay: '0.5s' }} />
-                  <h3 className="text-xl font-medium mb-2">Data Visualization</h3>
-                  <p className="text-muted-foreground">
-                    Creating insightful reports and interactive dashboards with Tableau.
-                  </p>
-                </div>
+                {about.expertise.filter((_, i) => i % 2 === 0).map((exp, i) => {
+                  const IconComp = iconMap[exp.icon] || Database;
+                  return (
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                      <IconComp
+                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        style={i > 0 ? { animationDelay: `${i * 0.5}s` } : undefined}
+                      />
+                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
+                      <p className="text-muted-foreground">{exp.description}</p>
+                    </div>
+                  );
+                })}
               </div>
 
+              {/* Second column of expertise cards */}
               <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-500 space-y-4 mt-6">
-                <div className="glass-card p-6 hover-lift gradient-border card-3d">
-                  <Code className="h-10 w-10 text-purple-500 mb-4 icon-float" style={{ animationDelay: '1s' }} />
-                  <h3 className="text-xl font-medium mb-2">Machine Learning</h3>
-                  <p className="text-muted-foreground">
-                    Developing predictive models and algorithms for business insights.
-                  </p>
-                </div>
-
-                <div className="glass-card p-6 hover-lift gradient-border card-3d">
-                  <MessageCircle className="h-10 w-10 text-amber-500 mb-4 icon-float" style={{ animationDelay: '1.5s' }} />
-                  <h3 className="text-xl font-medium mb-2">Communication</h3>
-                  <p className="text-muted-foreground">
-                    Specializing in effective communication to convey complex data insights to non-tech-savvy stakeholders, ensuring clarity and understanding.
-                  </p>
-                </div>
+                {about.expertise.filter((_, i) => i % 2 === 1).map((exp, i) => {
+                  const IconComp = iconMap[exp.icon] || Database;
+                  return (
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                      <IconComp
+                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        style={{ animationDelay: `${(i + 1) * 0.5 + 0.5}s` }}
+                      />
+                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
+                      <p className="text-muted-foreground">{exp.description}</p>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -117,15 +148,15 @@ const About = () => {
                 <BookOpen className="h-10 w-10 text-blue-500 mb-6 icon-float" />
                 <h3 className="text-2xl font-medium mb-4">Education</h3>
                 <ul className="space-y-4">
-                  <li>
-                    <div className="font-medium">M.Sc. Mathematical Modelling and Computation</div>
-                    <div className="text-muted-foreground">DTU (Copenhagen) | 2024-2026</div>
-                  </li>
-                  <li>
-                    <div className="font-medium">B.Sc. Mathematics</div>
-                    <div className="text-muted-foreground">Aristotle University of Thessaloniki | 2016-2021</div>
-                    <div className="text-sm text-muted-foreground mt-1">Focus: Data Analysis</div>
-                  </li>
+                  {about.education.map((edu) => (
+                    <li key={edu.degree}>
+                      <div className="font-medium">{edu.degree}</div>
+                      <div className="text-muted-foreground">{edu.institution} | {edu.period}</div>
+                      {edu.focus && (
+                        <div className="text-sm text-muted-foreground mt-1">Focus: {edu.focus}</div>
+                      )}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -135,14 +166,12 @@ const About = () => {
                 <Award className="h-10 w-10 text-amber-500 mb-6 icon-float" style={{ animationDelay: '0.5s' }} />
                 <h3 className="text-2xl font-medium mb-4">Achievements & Certifications</h3>
                 <ul className="space-y-4">
-                  <li>
-                    <div className="font-medium">Tableau Certified Data Analyst</div>
-                    <div className="text-muted-foreground">Professional certification</div>
-                  </li>
-                  <li>
-                    <div className="font-medium">Top 4% in Data Art & Storytelling</div>
-                    <div className="text-muted-foreground">Data2Speak Competition | 05/2024</div>
-                  </li>
+                  {about.certifications.map((cert) => (
+                    <li key={cert.title}>
+                      <div className="font-medium">{cert.title}</div>
+                      <div className="text-muted-foreground">{cert.description}</div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>

@@ -487,15 +487,21 @@
 }
 
 @keyframes scroll-indicator {
-  0%, 100% { 
+  0%, 100% {
     opacity: 1;
     transform: translateY(0);
   }
-  50% { 
+  50% {
     opacity: 0.5;
     transform: translateY(8px);
   }
 }
+
+@keyframes avatar-glow-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(102,126,234,0.2), 0 0 60px rgba(118,75,162,0.1); }
+  50% { box-shadow: 0 0 50px rgba(102,126,234,0.4), 0 0 100px rgba(118,75,162,0.2); }
+}
+.avatar-glow-pulse { animation: avatar-glow-pulse 3s ease-in-out infinite; }
 
 /* Scroll to top button animation */
 .scroll-top-animated {

@@ -30,23 +30,40 @@ Mistral-Hackathon/
 └── .env                       # Environment variables
 ```
 
-## Setup Instructions
+## 🚀 Quick Start - Local Development
 
-### Frontend Setup
+### 1. Frontend (React + Vite)
 ```bash
 npm install
 npm run dev
 ```
+- 🌐 Frontend runs on: `http://localhost:5173`
+- ✨ Hot reloading enabled
 
-### Backend Setup
+### 2. Backend (FastAPI)
 ```bash
-# Using uv (recommended)
+# Install dependencies
 uv sync
 
-# Or traditional venv
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt  # if you create one
+# Start development server
+uv run main.py
+```
+- 🌐 Backend runs on: `http://localhost:8000`
+- ✨ Auto-reload enabled
+- 🔄 CORS configured for frontend
+
+### 3. Test the API
+```bash
+# Health check
+curl http://localhost:8000/health
+
+# Get sample profile
+curl http://localhost:8000/profile/test123
+
+# Chat endpoint (POST)
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"content":"Hello from frontend!"}'
 ```
 
 ## Key Features to Implement

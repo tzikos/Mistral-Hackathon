@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Mail, MapPin, Phone, Send, Linkedin, Github, Instagram } from "lucide-react";
-import { supabase } from '@/config/supabase';
 import { toast } from 'sonner';
 
 const Contact = () => {
@@ -50,23 +49,10 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const { data, error } = await supabase
-        .from('contacts')
-        .insert([{
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          subject: formData.subject.trim(),
-          message: formData.message.trim()
-        }])
-        .select();
-
-      if (error) {
-        throw error;
-      }
-
+      // TODO: wire up to backend API
+      console.log('Contact form submitted:', formData);
       toast.success('Thank you for your message! I will get back to you soon.');
       setFormData({ name: '', email: '', subject: '', message: '' });
-
     } catch (error: any) {
       toast.error(error?.message || 'Failed to send message. Please try again.');
     } finally {

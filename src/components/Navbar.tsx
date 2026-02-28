@@ -1,9 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
-const Navbar = () => {
+interface NavbarProps {
+  profileName: string;
+  profileId?: string;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ profileName, profileId }) => {
+  const { isAuthenticated, profileId: authProfileId, logout } = useAuth();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -23,13 +32,22 @@ const Navbar = () => {
   const scrollToSection = (sectionId: string) => {
     const section = document.getElementById(sectionId);
     if (section) {
-      window.scrollTo({
-        top: section.offsetTop - 80,
-        behavior: "smooth",
-      });
-      setMobileMenuOpen(false);
+      window.scrollTo({ top: section.offsetTop - 80, behavior: "smooth" });
     }
+    setMobileMenuOpen(false);
   };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setMobileMenuOpen(false);
+  };
+
+  const navLinks = [
+    { label: "About", action: () => scrollToSection("about") },
+    { label: "Projects", action: () => scrollToSection("data") },
+    { label: "Experience", action: () => scrollToSection("experience") },
+    { label: "Contact", action: () => scrollToSection("contact") },
+  ];
 
   return (
     <header
@@ -46,64 +64,48 @@ const Navbar = () => {
           className="text-lg font-medium tracking-tight hover:opacity-80 transition-opacity"
           onClick={(e) => {
             e.preventDefault();
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            scrollToTop();
           }}
         >
-          Dimitris Papantzikos
+          {profileName}
         </a>
 
         {/* Desktop navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <a
-            href="#about"
-            className="nav-link-animated"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("about");
-            }}
-          >
-            About
-          </a>
-          <a
-            href="#data"
-            className="nav-link-animated"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("data");
-            }}
-          >
-            Projects
-          </a>
-          <a
-            href="#experience"
-            className="nav-link-animated"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("experience");
-            }}
-          >
-            Experience
-          </a>
-          <a
-            href="#gallery"
-            className="nav-link-animated"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("gallery");
-            }}
-          >
-            Gallery
-          </a>
-          <a
-            href="#contact"
-            className="nav-link-animated"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("contact");
-            }}
-          >
-            Contact
-          </a>
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href="#"
+              className="nav-link-animated"
+              onClick={(e) => {
+                e.preventDefault();
+                link.action();
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+          {isAuthenticated && profileId && authProfileId === profileId && (
+            <button
+              onClick={() => navigate(`/${profileId}/edit`)}
+              className="nav-link-animated inline-flex items-center gap-1.5"
+            >
+              <Pencil size={16} />
+              Edit Profile
+            </button>
+          )}
+          {isAuthenticated && (
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              className="nav-link-animated inline-flex items-center gap-1.5"
+            >
+              <LogOut size={16} />
+              Sign Out
+            </button>
+          )}
         </nav>
 
         {/* Mobile menu button */}
@@ -124,56 +126,47 @@ const Navbar = () => {
         )}
       >
         <nav className="flex flex-col space-y-8 text-lg">
-          <a
-            href="#about"
-            className="py-2 border-b border-gray-100 dark:border-gray-800"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("about");
-            }}
-          >
-            About
-          </a>
-          <a
-            href="#data"
-            className="py-2 border-b border-gray-100 dark:border-gray-800"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("data");
-            }}
-          >
-            Projects
-          </a>
-          <a
-            href="#experience"
-            className="py-2 border-b border-gray-100 dark:border-gray-800"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("experience");
-            }}
-          >
-            Experience
-          </a>
-          <a
-            href="#gallery"
-            className="py-2 border-b border-gray-100 dark:border-gray-800"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("gallery");
-            }}
-          >
-            Gallery
-          </a>
-          <a
-            href="#contact"
-            className="py-2"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollToSection("contact");
-            }}
-          >
-            Contact
-          </a>
+          {navLinks.map((link, i) => (
+            <a
+              key={link.label}
+              href="#"
+              className={cn(
+                "py-2",
+                i < navLinks.length - 1 && "border-b border-gray-100 dark:border-gray-800"
+              )}
+              onClick={(e) => {
+                e.preventDefault();
+                link.action();
+              }}
+            >
+              {link.label}
+            </a>
+          ))}
+          {isAuthenticated && profileId && authProfileId === profileId && (
+            <button
+              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
+              onClick={() => {
+                navigate(`/${profileId}/edit`);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <Pencil size={18} />
+              Edit Profile
+            </button>
+          )}
+          {isAuthenticated && (
+            <button
+              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
+              onClick={() => {
+                logout();
+                navigate("/");
+                setMobileMenuOpen(false);
+              }}
+            >
+              <LogOut size={18} />
+              Sign Out
+            </button>
+          )}
         </nav>
       </div>
     </header>
