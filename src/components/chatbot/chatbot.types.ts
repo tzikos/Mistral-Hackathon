@@ -186,7 +186,7 @@ export interface TTSServiceResponse<T> {
 // Extended error types for TTS
 export type TTSErrorType = ErrorType | 'tts_api' | 'audio_playback' | 'text_too_long' | 'voice_not_found';
 
-export interface TTSErrorState extends ErrorState {
+export interface TTSErrorState extends Omit<ErrorState, 'type'> {
   type: TTSErrorType;
 }
 
