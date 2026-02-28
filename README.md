@@ -39,7 +39,7 @@ This project provides a minimal proof-of-concept for testing Mistral's voice API
 ### Option 1: Command Line Test
 Run the voice API test directly:
 ```bash
-python voice_api_test.py
+python talking/voice_api_test.py
 ```
 - Place an audio file named `input.wav` in the project directory
 - The script will transcribe it and generate a response
@@ -51,10 +51,10 @@ python voice_api_test.py
    ```bash
    uv venv
    uv pip install -e .
-   python api_server.py
+   python -m talking.api_server
    ```
 
-2. Open `frontend.html` in your web browser
+2. Open `talking/frontend.html` in your web browser
 
 3. Click "Start Recording", speak, then "Stop Recording"
 
@@ -67,10 +67,10 @@ python voice_api_test.py
 
 ## Files
 
-- `voice_api_test.py` - Core voice API functions
-- `api_server.py` - Flask server for web interface
-- `elevenlabs_tts.py` - ElevenLabs TTS integration
-- `frontend.html` - Simple web interface
+- `talking/voice_api_test.py` - Core voice API functions
+- `talking/api_server.py` - Flask server for web interface
+- `talking/elevenlabs_tts.py` - ElevenLabs TTS integration
+- `talking/frontend.html` - Simple web interface
 - `pyproject.toml` - Python dependencies
 
 ## Troubleshooting

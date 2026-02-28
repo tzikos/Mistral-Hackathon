@@ -7,9 +7,17 @@ from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
 import base64
-from voice_api_test import transcribe_audio
-from kokoro_tts import kokoro_tts
-from mistral_completion import get_mistral_reply
+try:
+    from .voice_api_test import transcribe_audio
+    from .kokoro_tts import kokoro_tts
+    from .mistral_completion import get_mistral_reply
+except ImportError as import_error:
+    try:
+        from voice_api_test import transcribe_audio
+        from kokoro_tts import kokoro_tts
+        from mistral_completion import get_mistral_reply
+    except ImportError:
+        raise import_error
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -17,7 +25,7 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST"], allow_headers=["*"])
 
 # Configure upload folder
-UPLOAD_FOLDER = 'uploads'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
