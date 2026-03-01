@@ -830,9 +830,21 @@ const CreateProfile = () => {
                 {isCreateMode ? "Create Profile" : "Edit Profile"}
               </h1>
             </div>
-            <span className="text-sm text-muted-foreground">
-              Step {step + 1} of {STEPS.length}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-muted-foreground">
+                Step {step + 1} of {STEPS.length}
+              </span>
+              {!isCreateMode && (
+                <button
+                  onClick={() => navigate(`/${paramProfileId}`)}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  title="Exit without saving"
+                >
+                  <X size={15} />
+                  <span className="hidden sm:inline">Exit without saving</span>
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex gap-2">
             {STEPS.map((label, i) => (
@@ -1953,6 +1965,17 @@ function StepVoice({
               Record 10-30 seconds of your voice speaking naturally. This will be used to generate AI responses in your voice.
             </p>
           </div>
+        </div>
+
+        {/* Sample script */}
+        <div className="rounded-lg border border-dashed border-primary/30 bg-primary/5 px-4 py-3 space-y-1">
+          <p className="text-xs font-semibold text-primary uppercase tracking-wide">Sample script — read this aloud</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            "Hi, I'm excited to share a bit about my professional journey. Over the years I've worked on challenging
+            projects that pushed me to grow both technically and creatively. I enjoy collaborating with driven teams,
+            solving complex problems, and turning ideas into real products that make a difference. I believe in
+            continuous learning and bringing genuine enthusiasm to everything I do."
+          </p>
         </div>
 
         <div className="flex flex-col items-center gap-4 py-4">

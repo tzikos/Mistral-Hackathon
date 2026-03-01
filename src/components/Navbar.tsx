@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, LogOut, Pencil } from "lucide-react";
+import { Menu, X, LogOut, Pencil, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -105,6 +105,15 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
               </span>
             </button>
           )}
+          {isAuthenticated && authProfileId && profileId !== authProfileId && (
+            <button
+              onClick={() => navigate(`/${authProfileId}`)}
+              className="nav-link-animated inline-flex items-center gap-1.5"
+            >
+              <UserCircle size={16} />
+              My Profile
+            </button>
+          )}
           {isAuthenticated && profileId && authProfileId === profileId && (
             <button
               onClick={() => navigate(`/${profileId}/edit`)}
@@ -179,6 +188,18 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
                   stral
                 </span>
               </span>
+            </button>
+          )}
+          {isAuthenticated && authProfileId && profileId !== authProfileId && (
+            <button
+              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
+              onClick={() => {
+                navigate(`/${authProfileId}`);
+                setMobileMenuOpen(false);
+              }}
+            >
+              <UserCircle size={18} />
+              My Profile
             </button>
           )}
           {isAuthenticated && profileId && authProfileId === profileId && (

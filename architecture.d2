@@ -143,6 +143,14 @@ Providers: "" {
         border-radius: 8
       }
     }
+
+    STT: "voxtral-mini-latest\n(Speech-to-Text)" {
+      style: {
+        fill: "#ffedd5"
+        stroke: "#f97316"
+        border-radius: 8
+      }
+    }
   }
 
   # ── ElevenLabs ───────────────────────────────────────────────────────
@@ -156,14 +164,6 @@ Providers: "" {
     }
 
     Clone: "Voice Cloning" {
-      style: {
-        fill: "#ede9fe"
-        stroke: "#6d28d9"
-        border-radius: 8
-      }
-    }
-
-    STT: "Speech-to-Text" {
       style: {
         fill: "#ede9fe"
         stroke: "#6d28d9"
@@ -318,11 +318,11 @@ Providers.Mistral.Large -> Backend.AgentAPI: "reply text" {
 Frontend.Agent -> Backend.AgentAPI: "audio blob" {
   style.stroke: "#6d28d9"
 }
-Backend.AgentAPI -> Providers.ElevenLabs.STT: "audio blob" {
-  style.stroke: "#6d28d9"
+Backend.AgentAPI -> Providers.Mistral.STT: "audio blob" {
+  style.stroke: "#f97316"
 }
-Providers.ElevenLabs.STT -> Backend.AgentAPI: "transcript" {
-  style.stroke: "#6d28d9"
+Providers.Mistral.STT -> Backend.AgentAPI: "transcript" {
+  style.stroke: "#f97316"
 }
 Backend.AgentAPI -> Providers.ElevenLabs.TTS: "reply text" {
   style.stroke: "#6d28d9"
