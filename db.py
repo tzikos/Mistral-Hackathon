@@ -90,6 +90,31 @@ def db_get_all_profiles_raw() -> list[dict]:
     return result.data
 
 
+def db_store_embedding(profile_id: str, embedding: list[float]) -> None:
+    """Upsert the embedding vector for a profile row."""
+    # pgvector expects the vector as a string "[x, y, ...]" via PostgREST
+    vec_str = "[" + ",".join(str(x) for x in embedding) + "]"
+    get_supabase().table("profiles").update({"embedding": vec_str}).eq("id", profile_id).execute()
+
+
+def db_similarity_search(
+    query_embedding: list[float],
+    threshold: float = 0.3,
+    limit: int = 20,
+) -> list[dict]:
+    """Call the match_profiles RPC and return [{id, data, similarity}, ...]."""
+    vec_str = "[" + ",".join(str(x) for x in query_embedding) + "]"
+    result = get_supabase().rpc(
+        "match_profiles",
+        {
+            "query_embedding": vec_str,
+            "match_threshold": threshold,
+            "match_count": limit,
+        },
+    ).execute()
+    return result.data or []
+
+
 # ── User helpers ──────────────────────────────────────────────
 
 

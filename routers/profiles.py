@@ -1,5 +1,7 @@
+import logging
+
 import httpx
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile, File
 from fastapi.responses import FileResponse, Response
 
 from config import UPLOADS_DIR
@@ -9,11 +11,14 @@ from db import (
     db_create_profile,
     db_upsert_profile,
     db_get_all_profiles_raw,
+    db_similarity_search,
     get_supabase,
 )
 from services.search import search_profiles
+from services.embeddings import embed_text, generate_and_store_embedding
 from models import Profile
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -37,6 +42,42 @@ def search_profiles_endpoint(q: str = ""):
     return search_profiles(rows, q)
 
 
+@router.get("/profiles/deep-search")
+def deep_search_profiles_endpoint(q: str = ""):
+    """Semantic search via Mistral embeddings + pgvector cosine similarity."""
+    if not q.strip():
+        return []
+    query_embedding = embed_text(q.strip())
+    rows = db_similarity_search(query_embedding)
+    cards = []
+    for row in rows:
+        data = row.get("data") or {}
+        about = data.get("about") or {}
+        skills = about.get("skills") or []
+        cards.append({
+            "id": row["id"],
+            "name": data.get("name", ""),
+            "headline": data.get("headline", ""),
+            "badge": data.get("badge", ""),
+            "avatar": data.get("avatar"),
+            "voice_id": data.get("voice_id"),
+            "skills": skills[:6],
+            "score": row.get("similarity", 0.0),
+        })
+    return cards
+
+
+@router.post("/profiles/regenerate-embeddings")
+def regenerate_embeddings_endpoint(background_tasks: BackgroundTasks):
+    """Bulk re-generate embeddings for all existing profiles (for seeding)."""
+    rows = db_get_all_profiles_raw()
+    for row in rows:
+        profile_id = row["id"]
+        data = row.get("data") or {}
+        background_tasks.add_task(generate_and_store_embedding, profile_id, data)
+    return {"status": "started", "profiles": len(rows)}
+
+
 @router.get("/profile/{profile_id}")
 def get_profile(profile_id: str):
     """Return full profile JSON."""
@@ -44,14 +85,16 @@ def get_profile(profile_id: str):
 
 
 @router.post("/profile", status_code=201)
-def create_profile(profile: Profile):
+def create_profile(profile: Profile, background_tasks: BackgroundTasks):
     """Create a new profile."""
-    db_create_profile(profile.id, profile.model_dump())
+    data = profile.model_dump()
+    db_create_profile(profile.id, data)
+    background_tasks.add_task(generate_and_store_embedding, profile.id, data)
     return {"id": profile.id, "status": "created"}
 
 
 @router.put("/profile/{profile_id}")
-def update_profile(profile_id: str, body: dict):
+def update_profile(profile_id: str, body: dict, background_tasks: BackgroundTasks):
     """Update an existing profile (partial merge), or create if missing."""
     try:
         existing = db_get_profile(profile_id)
@@ -71,6 +114,7 @@ def update_profile(profile_id: str, body: dict):
     merged = _deep_merge(existing, body)
     merged["id"] = profile_id  # prevent id change
     db_upsert_profile(profile_id, merged)
+    background_tasks.add_task(generate_and_store_embedding, profile_id, merged)
     return {"id": profile_id, "status": "updated"}
 
 

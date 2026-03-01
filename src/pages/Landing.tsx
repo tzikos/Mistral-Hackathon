@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, Loader2, MessageCircle, LogOut } from "lucide-react";
+import { Search, User, Loader2, MessageCircle, LogOut, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
@@ -128,6 +128,7 @@ const Landing = () => {
   const [results, setResults] = useState<ProfileCard[]>([]);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [deepSearch, setDeepSearch] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -154,6 +155,31 @@ const Landing = () => {
     }
   }, []);
 
+  const runDeepSearch = useCallback(async (q: string) => {
+    if (!q.trim() || q.trim().length < 2) {
+      setResults([]);
+      setSearched(false);
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await fetch(
+        apiUrl(`/profiles/deep-search?q=${encodeURIComponent(q.trim())}`)
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setResults(data);
+        setSearched(true);
+      }
+    } catch {
+      // silent fail — keep previous results
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  const activeSearch = deepSearch ? runDeepSearch : runSearch;
+
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!query.trim()) {
@@ -161,11 +187,11 @@ const Landing = () => {
       setSearched(false);
       return;
     }
-    debounceRef.current = setTimeout(() => runSearch(query), 300);
+    debounceRef.current = setTimeout(() => activeSearch(query), deepSearch ? 600 : 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, runSearch]);
+  }, [query, activeSearch, deepSearch]);
 
   // Auto-focus search on mount
   useEffect(() => {
@@ -174,7 +200,7 @@ const Landing = () => {
 
   const handleSuggestion = (s: string) => {
     setQuery(s);
-    runSearch(s);
+    activeSearch(s);
   };
 
   const hasResults = results.length > 0;
@@ -252,7 +278,7 @@ const Landing = () => {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && runSearch(query)}
+              onKeyDown={(e) => e.key === "Enter" && activeSearch(query)}
               placeholder="e.g. Python, machine learning, full stack..."
               className="w-full bg-white border border-gray-300 focus:border-primary/60 text-gray-900 placeholder-gray-400 rounded-2xl pl-11 pr-12 py-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:shadow-lg focus:shadow-primary/10"
             />
@@ -285,6 +311,39 @@ const Landing = () => {
               ))}
             </div>
           )}
+
+          {/* Deep Search toggle */}
+          <div className="flex justify-center mt-6">
+            <div className="flex flex-col items-center gap-2">
+              <div className={`deep-search-border ${deepSearch ? "is-active" : ""}`}>
+                <button
+                  className="deep-search-btn"
+                  onClick={() => {
+                    setDeepSearch((prev) => !prev);
+                    setResults([]);
+                    setSearched(false);
+                  }}
+                >
+                  <Sparkles
+                    size={17}
+                    style={deepSearch ? { animation: "spin 3s linear infinite" } : {}}
+                  />
+                  Deep Search
+                  {deepSearch && (
+                    <span className="relative flex h-2 w-2 ml-1">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-white/90" />
+                    </span>
+                  )}
+                </button>
+              </div>
+              {deepSearch && (
+                <span className="text-[11px] text-violet-400 font-semibold tracking-[0.18em] uppercase animate-fade-in">
+                  Semantic AI Search Active
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -292,8 +351,10 @@ const Landing = () => {
       <div className="flex-1 w-full max-w-4xl mx-auto px-4 pb-16">
         {hasResults && (
           <>
-            <p className="text-xs text-gray-400 mb-4 text-center">
+            <p className="text-xs text-gray-400 mb-4 text-center flex items-center justify-center gap-1.5">
+              {deepSearch && <Sparkles size={11} className="text-violet-400" />}
               {results.length} profile{results.length !== 1 ? "s" : ""} found
+              {deepSearch && <span className="text-violet-400">via semantic search</span>}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {results.map((card) => (
