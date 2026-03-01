@@ -3,9 +3,10 @@ import React from "react";
 interface LogoProps {
   size?: "sm" | "md" | "lg";
   className?: string;
+  text?: string;
 }
 
-const Logo: React.FC<LogoProps> = ({ size = "md", className = "" }) => {
+const Logo: React.FC<LogoProps> = ({ size = "md", className = "", text = "AskMe" }) => {
   const sizeClasses = {
     sm: "text-xl font-extrabold tracking-tight",
     md: "text-2xl font-extrabold tracking-tight",
@@ -15,7 +16,7 @@ const Logo: React.FC<LogoProps> = ({ size = "md", className = "" }) => {
   return (
     <span className={`${sizeClasses[size]} ${className}`}>
       <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
-        AskMe
+        {text}
       </span>
       <span className="text-muted-foreground/60">.</span>
       <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">

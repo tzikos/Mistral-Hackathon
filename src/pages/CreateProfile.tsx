@@ -124,7 +124,7 @@ const COLOR_OPTIONS: { value: string; hex: string; label: string }[] = [
   { value: "rose", hex: "#f43f5e", label: "Rose" },
 ];
 
-const EDIT_STEPS = ["Basics", "About", "Portfolio", "Photo & Voice", "Links & Finish"];
+const EDIT_STEPS = ["CV Import", "Basics", "About", "Portfolio", "Photo & Voice", "Links & Finish"];
 const CREATE_STEPS = ["Account", "Basics", "About", "Portfolio", "Photo & Voice", "Links & Finish"];
 
 const emptyProfile: Profile = {
@@ -660,6 +660,55 @@ const CreateProfile = () => {
     }
   };
 
+  const handleCvImport = async () => {
+    if (!autoFillFromCv || !cvFile || !paramProfileId) {
+      setStep((s) => s + 1);
+      return;
+    }
+    setParsingCv(true);
+    try {
+      const parsed = await parseCv(paramProfileId, cvFile);
+      setProfile((prev) => {
+        const merged = { ...prev };
+        if (parsed.name) merged.name = parsed.name;
+        if (parsed.headline) merged.headline = parsed.headline;
+        if (parsed.badge) merged.badge = parsed.badge;
+        if (parsed.description) merged.description = parsed.description;
+        if (parsed.about) {
+          merged.about = {
+            bio: parsed.about.bio?.length ? parsed.about.bio : prev.about.bio,
+            skills: parsed.about.skills?.length ? parsed.about.skills : prev.about.skills,
+            expertise: parsed.about.expertise?.length ? parsed.about.expertise : prev.about.expertise,
+            education: parsed.about.education?.length ? parsed.about.education : prev.about.education,
+            certifications: parsed.about.certifications?.length ? parsed.about.certifications : prev.about.certifications,
+          };
+        }
+        if (parsed.portfolio) {
+          merged.portfolio = {
+            projects: parsed.portfolio.projects?.length ? parsed.portfolio.projects : prev.portfolio.projects,
+            workExperience: parsed.portfolio.workExperience?.length ? parsed.portfolio.workExperience : prev.portfolio.workExperience,
+            talksAndAwards: parsed.portfolio.talksAndAwards?.length ? parsed.portfolio.talksAndAwards : prev.portfolio.talksAndAwards,
+          };
+        }
+        if (parsed.links) {
+          merged.links = {
+            ...prev.links,
+            ...(parsed.links.cv ? { cv: parsed.links.cv } : {}),
+            ...(parsed.links.linkedIn ? { linkedIn: parsed.links.linkedIn } : {}),
+            ...(parsed.links.github ? { github: parsed.links.github } : {}),
+            ...(parsed.links.instagram ? { instagram: parsed.links.instagram } : {}),
+          };
+        }
+        return merged;
+      });
+    } catch (err: any) {
+      setCvWarning(`CV parsing failed: ${err.message}. You can fill in your details manually.`);
+    } finally {
+      setParsingCv(false);
+    }
+    setStep((s) => s + 1);
+  };
+
   const saveProfile = async () => {
     if (!activeProfileId) return;
     setSaving(true);
@@ -678,14 +727,17 @@ const CreateProfile = () => {
     }
   };
 
-  // Which content step are we on? In create mode step 0 = Account, step 1 = Basics, etc.
-  // In edit mode step 0 = Basics, step 1 = About, etc.
-  const contentStep = isCreateMode ? step - 1 : step;
+  // step 0 is always a special non-content step (Account in create mode, CV Import in edit mode).
+  // Content steps (Basics, About, …) start at step 1 in both modes.
+  const contentStep = step - 1;
 
   const handleNext = () => {
-    // If we're on the Account step in create mode, do registration
     if (isCreateMode && step === 0) {
       handleAccountNext();
+      return;
+    }
+    if (!isCreateMode && step === 0) {
+      handleCvImport();
       return;
     }
     setStep((s) => s + 1);
@@ -785,6 +837,14 @@ const CreateProfile = () => {
             setAutoFillFromCv={setAutoFillFromCv}
           />
         )}
+        {!isCreateMode && step === 0 && (
+          <StepCvImport
+            cvFile={cvFile}
+            setCvFile={setCvFile}
+            autoFillFromCv={autoFillFromCv}
+            setAutoFillFromCv={setAutoFillFromCv}
+          />
+        )}
         {contentStep === 0 && (
           <StepBasics
             profile={profile}
@@ -842,16 +902,14 @@ const CreateProfile = () => {
           {step < STEPS.length - 1 ? (
             <Button
               onClick={handleNext}
-              disabled={
-                (isCreateMode && step === 0 && (registering || parsingCv))
-              }
+              disabled={step === 0 && (registering || parsingCv)}
             >
               {isCreateMode && step === 0 && registering
                 ? "Creating account..."
-                : isCreateMode && step === 0 && parsingCv
+                : step === 0 && parsingCv
                   ? (<><Loader2 size={16} className="mr-1.5 animate-spin" />Analyzing CV...</>)
                   : "Next"}
-              {!(isCreateMode && step === 0 && (registering || parsingCv)) && (
+              {!(step === 0 && (registering || parsingCv)) && (
                 <ChevronRight size={16} className="ml-1" />
               )}
             </Button>
@@ -866,6 +924,110 @@ const CreateProfile = () => {
     </div>
   );
 };
+
+// ── Step 0 (edit mode): CV Import ───────────────────────────
+
+function StepCvImport({
+  cvFile,
+  setCvFile,
+  autoFillFromCv,
+  setAutoFillFromCv,
+}: {
+  cvFile: File | null;
+  setCvFile: (f: File | null) => void;
+  autoFillFromCv: boolean;
+  setAutoFillFromCv: (v: boolean) => void;
+}) {
+  const cvInputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold mb-1">Speed up your profile setup</h2>
+        <p className="text-muted-foreground">
+          Upload your CV and let AI pre-fill your profile. You can review and edit everything in the next steps.
+        </p>
+      </div>
+
+      <div className="border-2 rounded-lg p-6 space-y-4" style={{ borderColor: '#FA520F', backgroundColor: '#FA520F0D' }}>
+        <div className="flex items-start gap-3">
+          <FileUp size={20} className="mt-0.5 shrink-0" style={{ color: '#FA520F' }} />
+          <div>
+            <h3 className="font-semibold text-sm">
+              Auto-fill from CV
+              <HelpTip text="Upload your CV as a PDF and we'll use AI to extract your information and pre-fill the profile wizard. You can review and edit everything before saving." />
+            </h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              PDF files only. Your data stays private.
+            </p>
+          </div>
+        </div>
+
+        <div>
+          <input
+            ref={cvInputRef}
+            type="file"
+            accept=".pdf,application/pdf"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setCvFile(file);
+              if (file) setAutoFillFromCv(true);
+            }}
+          />
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => cvInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+              style={{ backgroundColor: '#FA520F' }}
+            >
+              <Upload size={14} />
+              {cvFile ? "Change File" : "Choose PDF"}
+            </button>
+            {cvFile && (
+              <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                {cvFile.name}
+              </span>
+            )}
+            {cvFile && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCvFile(null);
+                  setAutoFillFromCv(false);
+                  if (cvInputRef.current) cvInputRef.current.value = "";
+                }}
+                className="text-muted-foreground hover:text-red-500"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {cvFile && (
+          <button
+            type="button"
+            onClick={() => setAutoFillFromCv(!autoFillFromCv)}
+            className="flex items-center gap-2 text-sm hover:text-foreground transition-colors"
+          >
+            {autoFillFromCv ? (
+              <CheckSquare size={18} style={{ color: '#FA520F' }} />
+            ) : (
+              <Square size={18} className="text-muted-foreground" />
+            )}
+            <span>Auto-fill profile from CV using AI</span>
+          </button>
+        )}
+      </div>
+
+      <p className="text-sm text-muted-foreground text-center">
+        No CV? Click <strong>Next</strong> to fill in your details manually.
+      </p>
+    </div>
+  );
+}
 
 // ── Step 0 (create mode): Account ───────────────────────────
 

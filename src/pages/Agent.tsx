@@ -41,6 +41,11 @@ const Agent = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
+  // Tap-vs-hold detection
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isHoldModeRef = useRef(false);
+  const HOLD_MS = 250;
+
   // Initialise session
   useEffect(() => {
     if (!profileId) return;
@@ -272,7 +277,7 @@ const Agent = () => {
         ? "Thinking..."
         : status === "speaking"
           ? "Speaking..."
-          : "Press & hold to talk";
+          : "Tap or hold to talk";
 
   const statusColor =
     status === "recording"
@@ -351,7 +356,7 @@ const Agent = () => {
                 "Ask me anything about their professional background, skills, and experience."}
             </p>
             <p className="text-xs text-gray-500">
-              Hold <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-gray-300 font-mono">Space</kbd> or press the mic button to start talking
+              Tap the mic to toggle, hold to record, or hold <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-gray-300 font-mono">Space</kbd>
             </p>
           </div>
         )}
@@ -434,19 +439,62 @@ const Agent = () => {
           </p>
 
           <button
-            onMouseDown={() => status === "idle" && startRecording()}
-            onMouseUp={() => status === "recording" && stopRecording()}
-            onMouseLeave={() => status === "recording" && stopRecording()}
+            onMouseDown={() => {
+              if (status === "speaking") { stopAudio(); return; }
+              if (status !== "idle") return;
+              isHoldModeRef.current = false;
+              holdTimerRef.current = setTimeout(() => {
+                isHoldModeRef.current = true;
+                startRecording();
+              }, HOLD_MS);
+            }}
+            onMouseUp={() => {
+              if (holdTimerRef.current) {
+                clearTimeout(holdTimerRef.current);
+                holdTimerRef.current = null;
+              }
+              if (isHoldModeRef.current) {
+                // hold-to-talk: release stops
+                if (status === "recording") stopRecording();
+              } else {
+                // tap: toggle
+                if (status === "idle") startRecording();
+                else if (status === "recording") stopRecording();
+              }
+              isHoldModeRef.current = false;
+            }}
+            onMouseLeave={() => {
+              if (holdTimerRef.current) {
+                clearTimeout(holdTimerRef.current);
+                holdTimerRef.current = null;
+              }
+              // Only stop on leave if in hold mode (not a tap toggle)
+              if (isHoldModeRef.current && status === "recording") stopRecording();
+              isHoldModeRef.current = false;
+            }}
             onTouchStart={(e) => {
               e.preventDefault();
-              if (status === "idle") startRecording();
+              if (status === "speaking") { stopAudio(); return; }
+              if (status !== "idle") return;
+              isHoldModeRef.current = false;
+              holdTimerRef.current = setTimeout(() => {
+                isHoldModeRef.current = true;
+                startRecording();
+              }, HOLD_MS);
             }}
             onTouchEnd={(e) => {
               e.preventDefault();
-              if (status === "recording") stopRecording();
-            }}
-            onClick={() => {
-              if (status === "speaking") stopAudio();
+              if (holdTimerRef.current) {
+                clearTimeout(holdTimerRef.current);
+                holdTimerRef.current = null;
+              }
+              if (isHoldModeRef.current) {
+                if (status === "recording") stopRecording();
+              } else {
+                if (status === "idle") startRecording();
+                else if (status === "recording") stopRecording();
+              }
+              isHoldModeRef.current = false;
             }}
             disabled={status === "processing"}
             className={`

@@ -1,32 +1,59 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
 
+type Mode = "signin" | "signup";
+
 const Auth = () => {
+  const [mode, setMode] = useState<Mode>("signin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, register, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Already signed in → go straight to search
   if (!isLoading && isAuthenticated) {
     return <Navigate to="/search" replace />;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const resetForm = () => {
+    setUsername("");
+    setPassword("");
+    setError(null);
+  };
+
+  const switchMode = (m: Mode) => {
+    setMode(m);
+    resetForm();
+  };
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
       await login(username, password);
       navigate("/search");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const profileId = await register(username, password);
+      navigate(`/${profileId}/edit`);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -50,56 +77,111 @@ const Auth = () => {
       </div>
 
       <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl gradient-text">Sign In</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
-              <Input
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="e.g. johndoe"
-                required
-                minLength={3}
-                maxLength={30}
-                pattern="^[a-zA-Z0-9_-]+$"
-                title="Letters, numbers, hyphens and underscores only"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 6 characters"
-                required
-                minLength={6}
-              />
-            </div>
+        {/* Tabs */}
+        <div className="flex border-b border-border">
+          <button
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              mode === "signin"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => switchMode("signin")}
+          >
+            Sign In
+          </button>
+          <button
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              mode === "signup"
+                ? "text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+            onClick={() => switchMode("signup")}
+          >
+            Create Account
+          </button>
+        </div>
 
-            {error && (
-              <p className="text-sm text-red-500 text-center">{error}</p>
-            )}
+        <CardContent className="pt-6">
+          {mode === "signin" ? (
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. johndoe"
+                  required
+                  minLength={3}
+                  maxLength={30}
+                  pattern="^[a-zA-Z0-9_-]+$"
+                  title="Letters, numbers, hyphens and underscores only"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Your password"
+                  required
+                  minLength={6}
+                />
+              </div>
 
-            <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Please wait..." : "Sign In"}
-            </Button>
-          </form>
+              {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <button
-              className="text-primary hover:underline"
-              onClick={() => navigate("/create")}
-            >
-              Create Profile
-            </button>
-          </div>
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Signing in..." : "Sign In"}
+              </Button>
+            </form>
+          ) : (
+            <form onSubmit={handleSignUp} className="space-y-4">
+              <p className="text-sm text-muted-foreground text-center">
+                Choose a username for your profile URL. You'll fill in your details next.
+              </p>
+              <div className="space-y-2">
+                <Label htmlFor="new-username">Username</Label>
+                <Input
+                  id="new-username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="e.g. johndoe"
+                  required
+                  minLength={3}
+                  maxLength={30}
+                  pattern="^[a-zA-Z0-9_-]+$"
+                  title="Letters, numbers, hyphens and underscores only"
+                />
+                {username && (
+                  <p className="text-xs text-muted-foreground">
+                    Your profile will be at{" "}
+                    <span className="text-primary font-medium">/{username}</span>
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Password</Label>
+                <Input
+                  id="new-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min 6 characters"
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? "Creating account..." : "Create Account & Set Up Profile"}
+              </Button>
+            </form>
+          )}
         </CardContent>
       </Card>
     </div>

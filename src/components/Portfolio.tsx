@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ArrowRight, BarChart, Code, ExternalLink } from "lucide-react";
+import { externalUrl } from "@/lib/utils";
 import ProjectDetailDialog from "./ProjectDetailDialog";
 import { Presentation } from "lucide-react";
 import { Profile, PortfolioItem } from "@/types/profile";
@@ -53,7 +54,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
             )}
             {project.link && (
               <a
-                href={project.link}
+                href={externalUrl(project.link)}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -137,7 +138,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
               </div>
               {links.projectsLinkedIn && (
                 <a
-                  href={links.projectsLinkedIn}
+                  href={externalUrl(links.projectsLinkedIn!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hidden md:inline-flex items-center text-sm font-medium px-4 py-2 rounded-md border hover:bg-secondary transition-colors"
@@ -162,7 +163,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
             {links.projectsLinkedIn && (
               <div className="mt-10 flex justify-center md:hidden">
                 <a
-                  href={links.projectsLinkedIn}
+                  href={externalUrl(links.projectsLinkedIn!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-sm font-medium px-4 py-2 rounded-md border hover:bg-secondary transition-colors"

@@ -92,7 +92,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar profileName={profile.name} profileId={profileId} />
+      <Navbar profileName={profile.name} profileId={profileId} profile={profile} />
       <main className="flex-grow">
         <Hero profile={profile} />
         <About profile={profile} />

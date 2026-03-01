@@ -73,19 +73,21 @@ const Hero: React.FC<HeroProps> = ({ profile }) => {
         <div className="max-w-4xl mx-auto text-center">
           {/* Avatar */}
           <div className="animate-on-scroll opacity-0 transition-opacity duration-1000 flex justify-center mb-8">
-            <div className="w-40 h-40 md:w-52 md:h-52 rounded-full gradient-border gradient-border-always avatar-glow-pulse overflow-hidden">
-              {profile.avatar && !avatarError ? (
-                <img
-                  src={profile.avatar}
-                  alt={profile.name}
-                  className="w-full h-full rounded-full object-cover"
-                  onError={handleAvatarError}
-                />
-              ) : (
-                <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl md:text-6xl font-bold">
-                  {profile.name.charAt(0)}
-                </div>
-              )}
+            <div className="w-40 h-40 md:w-52 md:h-52 rounded-full p-[3px] avatar-glow-pulse" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea)', backgroundSize: '300% 300%', animation: 'gradient-rotate 4s linear infinite, avatar-glow-pulse 3s ease-in-out infinite' }}>
+              <div className="w-full h-full rounded-full overflow-hidden">
+                {profile.avatar && !avatarError ? (
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name}
+                    className="w-full h-full object-cover"
+                    onError={handleAvatarError}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl md:text-6xl font-bold">
+                    {profile.name.charAt(0)}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

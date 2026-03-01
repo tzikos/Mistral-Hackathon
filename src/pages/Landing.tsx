@@ -228,12 +228,7 @@ const Landing = () => {
       {/* Hero + search */}
       <div className="flex flex-col items-center px-4 pt-20 pb-10">
         <div className="text-center mb-10 animate-fade-in">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-3 text-gray-900">
-            Find the right{" "}
-            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              talent
-            </span>
-          </h1>
+          <Logo size="lg" text="FindMe" className="block mb-4" />
           <p className="text-gray-500 text-base sm:text-lg max-w-md mx-auto">
             Search by skills, role, experience, or anything else across all profiles
           </p>

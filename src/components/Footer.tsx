@@ -2,6 +2,7 @@
 import React from "react";
 import { ChevronUp, Github, Linkedin, Instagram, FileDown } from "lucide-react";
 import { Profile } from "@/types/profile";
+import { externalUrl } from "@/lib/utils";
 
 interface FooterProps {
   profile: Profile;
@@ -38,7 +39,7 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
             <div className="flex space-x-6 mb-8">
               {profile.links.linkedIn && (
                 <a
-                  href={profile.links.linkedIn}
+                  href={externalUrl(profile.links.linkedIn!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
@@ -49,7 +50,7 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
               )}
               {profile.links.github && (
                 <a
-                  href={profile.links.github}
+                  href={externalUrl(profile.links.github!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
@@ -60,7 +61,7 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
               )}
               {profile.links.instagram && (
                 <a
-                  href={profile.links.instagram}
+                  href={externalUrl(profile.links.instagram!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
@@ -71,7 +72,7 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
               )}
               {profile.links.cv && (
                 <a
-                  href={profile.links.cv}
+                  href={externalUrl(profile.links.cv!)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"

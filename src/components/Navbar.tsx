@@ -5,13 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
+import { Profile } from "@/types/profile";
 
 interface NavbarProps {
   profileName: string;
   profileId?: string;
+  profile?: Profile;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ profileName, profileId }) => {
+const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
   const { isAuthenticated, profileId: authProfileId, logout } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,10 +45,20 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId }) => {
     setMobileMenuOpen(false);
   };
 
+  const hasAbout = !profile || (
+    profile.about.bio.length > 0 ||
+    profile.about.skills.length > 0 ||
+    profile.about.expertise.length > 0 ||
+    profile.about.education.length > 0 ||
+    profile.about.certifications.length > 0
+  );
+  const hasProjects = !profile || profile.portfolio.projects.length > 0;
+  const hasExperience = !profile || profile.portfolio.workExperience.length > 0;
+
   const navLinks = [
-    { label: "About", action: () => scrollToSection("about") },
-    { label: "Projects", action: () => scrollToSection("data") },
-    { label: "Experience", action: () => scrollToSection("experience") },
+    ...(hasAbout ? [{ label: "About", action: () => scrollToSection("about") }] : []),
+    ...(hasProjects ? [{ label: "Projects", action: () => scrollToSection("data") }] : []),
+    ...(hasExperience ? [{ label: "Experience", action: () => scrollToSection("experience") }] : []),
     { label: "Contact", action: () => scrollToSection("contact") },
   ];
 

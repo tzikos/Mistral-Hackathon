@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { MapPin, Linkedin, Github, Instagram, FileDown, Search } from "lucide-react";
 import { Profile } from "@/types/profile";
 import { useNavigate } from "react-router-dom";
+import { externalUrl } from "@/lib/utils";
 
 interface ContactProps {
   profile: Profile;
@@ -76,7 +77,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     <div>
                       <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">LinkedIn</h4>
                       <a
-                        href={profile.links.linkedIn}
+                        href={externalUrl(profile.links.linkedIn!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
@@ -93,7 +94,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     <div>
                       <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">GitHub</h4>
                       <a
-                        href={profile.links.github}
+                        href={externalUrl(profile.links.github!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
@@ -110,7 +111,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     <div>
                       <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">CV / Resume</h4>
                       <a
-                        href={profile.links.cv}
+                        href={externalUrl(profile.links.cv!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
@@ -129,7 +130,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                   <div className="flex space-x-4">
                     {profile.links.linkedIn && (
                       <a
-                        href={profile.links.linkedIn}
+                        href={externalUrl(profile.links.linkedIn!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
@@ -140,7 +141,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     )}
                     {profile.links.instagram && (
                       <a
-                        href={profile.links.instagram}
+                        href={externalUrl(profile.links.instagram!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
@@ -151,7 +152,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     )}
                     {profile.links.github && (
                       <a
-                        href={profile.links.github}
+                        href={externalUrl(profile.links.github!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
@@ -162,7 +163,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     )}
                     {profile.links.cv && (
                       <a
-                        href={profile.links.cv}
+                        href={externalUrl(profile.links.cv!)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
