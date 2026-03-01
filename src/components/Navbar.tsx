@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, LogOut, Pencil, Search } from "lucide-react";
+import { Menu, X, LogOut, Pencil } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -72,13 +72,7 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <button
-          onClick={() => navigate("/search")}
-          className="hover:opacity-80 transition-opacity"
-          aria-label="Go to search"
-        >
-          <Logo size="sm" />
-        </button>
+        <Logo size="sm" />
 
         {/* Desktop navigation */}
         <nav className="hidden md:flex items-center space-x-8">
@@ -98,10 +92,17 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
           {isAuthenticated && (
             <button
               onClick={() => navigate("/search")}
-              className="nav-link-animated inline-flex items-center gap-1.5"
+              className="hover:opacity-75 transition-opacity"
             >
-              <Search size={16} />
-              Search
+              <span className="text-base font-semibold tracking-tight">
+                <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  FindMe
+                </span>
+                <span className="text-muted-foreground/60">.</span>
+                <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                  stral
+                </span>
+              </span>
             </button>
           )}
           {isAuthenticated && profileId && authProfileId === profileId && (
@@ -163,14 +164,21 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
           ))}
           {isAuthenticated && (
             <button
-              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
+              className="py-2 text-left border-t border-gray-100 dark:border-gray-800"
               onClick={() => {
                 navigate("/search");
                 setMobileMenuOpen(false);
               }}
             >
-              <Search size={18} />
-              Search
+              <span className="text-lg font-semibold tracking-tight">
+                <span className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">
+                  FindMe
+                </span>
+                <span className="text-muted-foreground/60">.</span>
+                <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                  stral
+                </span>
+              </span>
             </button>
           )}
           {isAuthenticated && profileId && authProfileId === profileId && (

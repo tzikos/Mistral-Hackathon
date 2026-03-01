@@ -15,11 +15,11 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { login, register, isAuthenticated, isLoading } = useAuth();
+  const { login, register, isAuthenticated, isLoading, profileId } = useAuth();
   const navigate = useNavigate();
 
   if (!isLoading && isAuthenticated) {
-    return <Navigate to="/search" replace />;
+    return <Navigate to={profileId ? `/${profileId}` : "/search"} replace />;
   }
 
   const resetForm = () => {
@@ -38,8 +38,8 @@ const Auth = () => {
     setError(null);
     setSubmitting(true);
     try {
-      await login(username, password);
-      navigate("/search");
+      const id = await login(username, password);
+      navigate(`/${id}`);
     } catch (err: any) {
       setError(err.message);
     } finally {
