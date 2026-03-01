@@ -257,7 +257,7 @@ function ImageUpload({
         <img
           src={currentUrl}
           alt="preview"
-          className="w-24 h-24 object-cover rounded-lg mb-2 border"
+          className="w-24 h-24 object-cover rounded-full mb-2 border"
         />
       )}
       <input
@@ -476,6 +476,11 @@ const CreateProfile = () => {
   const [parsingCv, setParsingCv] = useState(false);
   const [cvWarning, setCvWarning] = useState<string | null>(null);
 
+  // Edit mode: CV re-upload state
+  const [editCvFile, setEditCvFile] = useState<File | null>(null);
+  const [reparsingCv, setReparsingCv] = useState(false);
+  const [reparseSuccess, setReparseSuccess] = useState(false);
+
   const activeProfileId = paramProfileId || createdProfileId;
 
   // Load existing profile data (edit mode)
@@ -607,6 +612,54 @@ const CreateProfile = () => {
     }
   };
 
+  const handleReparseCV = async () => {
+    if (!editCvFile || !activeProfileId) return;
+    setReparsingCv(true);
+    setReparseSuccess(false);
+    try {
+      const parsed = await parseCv(activeProfileId, editCvFile);
+      setProfile((prev) => {
+        const merged = { ...prev };
+        if (parsed.name) merged.name = parsed.name;
+        if (parsed.headline) merged.headline = parsed.headline;
+        if (parsed.badge) merged.badge = parsed.badge;
+        if (parsed.description) merged.description = parsed.description;
+        if (parsed.about) {
+          merged.about = {
+            bio: parsed.about.bio?.length ? parsed.about.bio : prev.about.bio,
+            skills: parsed.about.skills?.length ? parsed.about.skills : prev.about.skills,
+            expertise: parsed.about.expertise?.length ? parsed.about.expertise : prev.about.expertise,
+            education: parsed.about.education?.length ? parsed.about.education : prev.about.education,
+            certifications: parsed.about.certifications?.length ? parsed.about.certifications : prev.about.certifications,
+          };
+        }
+        if (parsed.portfolio) {
+          merged.portfolio = {
+            projects: parsed.portfolio.projects?.length ? parsed.portfolio.projects : prev.portfolio.projects,
+            workExperience: parsed.portfolio.workExperience?.length ? parsed.portfolio.workExperience : prev.portfolio.workExperience,
+            talksAndAwards: parsed.portfolio.talksAndAwards?.length ? parsed.portfolio.talksAndAwards : prev.portfolio.talksAndAwards,
+          };
+        }
+        if (parsed.links) {
+          merged.links = {
+            ...prev.links,
+            ...(parsed.links.cv ? { cv: parsed.links.cv } : {}),
+            ...(parsed.links.linkedIn ? { linkedIn: parsed.links.linkedIn } : {}),
+            ...(parsed.links.github ? { github: parsed.links.github } : {}),
+            ...(parsed.links.instagram ? { instagram: parsed.links.instagram } : {}),
+          };
+        }
+        return merged;
+      });
+      setReparseSuccess(true);
+      setEditCvFile(null);
+    } catch (err: any) {
+      setCvWarning(`CV re-parsing failed: ${err.message}`);
+    } finally {
+      setReparsingCv(false);
+    }
+  };
+
   const saveProfile = async () => {
     if (!activeProfileId) return;
     setSaving(true);
@@ -617,8 +670,7 @@ const CreateProfile = () => {
         body: JSON.stringify(profile),
       });
       if (!res.ok) throw new Error("Save failed");
-      // After creating a new profile go to search; after editing go to the profile page
-      navigate(isCreateMode ? "/search" : `/${activeProfileId}`);
+      navigate(`/${activeProfileId}`);
     } catch {
       alert("Failed to save profile");
     } finally {
@@ -650,7 +702,7 @@ const CreateProfile = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
       {/* CV parsing overlay with progress */}
-      {parsingCv && (
+      {(parsingCv || reparsingCv) && (
         <CvProgressOverlay />
       )}
 
@@ -766,6 +818,12 @@ const CreateProfile = () => {
             profileId={activeProfileId || ""}
             updateLinks={updateLinks}
             profile={profile}
+            isEditMode={!isCreateMode}
+            editCvFile={editCvFile}
+            setEditCvFile={setEditCvFile}
+            onReparseCV={handleReparseCV}
+            reparsingCv={reparsingCv}
+            reparseSuccess={reparseSuccess}
           />
         )}
 
@@ -1020,13 +1078,6 @@ function StepBasics({
             placeholder="A short description about yourself..."
           />
         </div>
-
-        <ImageUpload
-          profileId={profileId}
-          currentUrl={profile.avatar}
-          onUploaded={(url) => updateField("avatar", url)}
-          label="Avatar"
-        />
       </div>
     </div>
   );
@@ -1750,12 +1801,26 @@ function StepLinks({
   profileId,
   updateLinks,
   profile,
+  isEditMode,
+  editCvFile,
+  setEditCvFile,
+  onReparseCV,
+  reparsingCv,
+  reparseSuccess,
 }: {
   links: Links;
   profileId: string;
   updateLinks: <K extends keyof Links>(key: K, value: Links[K]) => void;
   profile: Profile;
+  isEditMode?: boolean;
+  editCvFile?: File | null;
+  setEditCvFile?: (f: File | null) => void;
+  onReparseCV?: () => void;
+  reparsingCv?: boolean;
+  reparseSuccess?: boolean;
 }) {
+  const editCvInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Links & Finish <HelpTip text="Add external links and upload your CV. All fields are optional. Review the summary below before saving." /></h2>
@@ -1768,6 +1833,84 @@ function StepLinks({
           label="CV (PDF)"
           accept=".pdf"
         />
+
+        {isEditMode && (
+          <div className="border-2 rounded-lg p-5 space-y-4" style={{ borderColor: '#FA520F', backgroundColor: '#FA520F0D' }}>
+            <div className="flex items-start gap-3">
+              <FileUp size={20} className="mt-0.5 shrink-0" style={{ color: '#FA520F' }} />
+              <div>
+                <h3 className="font-semibold text-sm">
+                  Re-parse CV with AI
+                  <HelpTip text="Upload a new CV to overwrite your profile data using AI extraction. This will replace your existing profile info with the parsed data." />
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Upload a new PDF to overwrite your profile entries
+                </p>
+              </div>
+            </div>
+
+            <input
+              ref={editCvInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0] || null;
+                setEditCvFile?.(file);
+              }}
+            />
+            <div className="flex items-center gap-3 flex-wrap">
+              <button
+                type="button"
+                onClick={() => editCvInputRef.current?.click()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-white transition-opacity hover:opacity-90"
+                style={{ backgroundColor: '#FA520F' }}
+              >
+                <Upload size={14} />
+                {editCvFile ? "Change PDF" : "Choose PDF"}
+              </button>
+              {editCvFile && (
+                <span className="text-sm text-muted-foreground truncate max-w-[180px]">
+                  {editCvFile.name}
+                </span>
+              )}
+              {editCvFile && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditCvFile?.(null);
+                    if (editCvInputRef.current) editCvInputRef.current.value = "";
+                  }}
+                  className="text-muted-foreground hover:text-red-500"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+
+            {editCvFile && (
+              <Button
+                type="button"
+                onClick={onReparseCV}
+                disabled={reparsingCv}
+                className="w-full"
+              >
+                {reparsingCv ? (
+                  <><Loader2 size={16} className="mr-2 animate-spin" />Analyzing CV...</>
+                ) : (
+                  <><FileUp size={16} className="mr-2" />Re-parse & Overwrite Profile</>
+                )}
+              </Button>
+            )}
+
+            {reparseSuccess && (
+              <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 size={16} />
+                Profile data updated from CV! Review below and save when ready.
+              </div>
+            )}
+          </div>
+        )}
 
         <div>
           <Label>LinkedIn <HelpTip text="Your main LinkedIn profile URL." /></Label>

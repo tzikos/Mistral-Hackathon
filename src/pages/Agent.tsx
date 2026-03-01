@@ -286,7 +286,7 @@ const Agent = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10">
+      <header className="relative flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(`/${profileId}`)}
@@ -295,7 +295,10 @@ const Agent = () => {
             <ArrowLeft size={18} />
             <span className="text-sm hidden sm:inline">Back to Profile</span>
           </button>
-          <Logo size="sm" className="hidden sm:inline" />
+        </div>
+        {/* Centered logo */}
+        <div className="absolute left-1/2 -translate-x-1/2">
+          <Logo size="sm" />
         </div>
         <div className="flex items-center gap-3">
           {profile?.avatar ? (
@@ -309,7 +312,7 @@ const Agent = () => {
               <User size={16} className="text-primary" />
             </div>
           )}
-          <span className="font-medium text-sm">
+          <span className="font-medium text-sm hidden sm:inline">
             Talk to {profile?.name || "AI"}
           </span>
           {chat.length > 0 && (
@@ -362,8 +365,18 @@ const Agent = () => {
               </div>
             </div>
             {/* AI response */}
-            <div className="flex justify-start">
-              <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3">
+            <div className="flex justify-start gap-3">
+              {/* Profile avatar */}
+              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
+                {profile?.avatar ? (
+                  <img src={profile.avatar} alt={profile?.name || ""} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-primary/20 flex items-center justify-center">
+                    <User size={16} className="text-primary" />
+                  </div>
+                )}
+              </div>
+              <div className="max-w-[75%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3">
                 <p className="text-sm">{entry.aiText}</p>
                 {entry.audioB64 && (
                   <button
@@ -439,7 +452,7 @@ const Agent = () => {
             className={`
               w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200
               ${status === "recording"
-                ? "bg-red-500 scale-110 shadow-lg shadow-red-500/30 animate-pulse"
+                ? "bg-red-500 shadow-lg shadow-red-500/30 mic-recording"
                 : status === "processing"
                   ? "bg-amber-500/20 cursor-wait"
                   : status === "speaking"
@@ -460,11 +473,6 @@ const Agent = () => {
             )}
           </button>
 
-          {!profile?.voice_id && (
-            <p className="text-xs text-amber-400/70 text-center max-w-xs">
-              Voice not cloned yet — responses will be text-only
-            </p>
-          )}
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ from db import (
     db_create_profile,
     db_upsert_profile,
     db_get_all_profiles_raw,
+    get_supabase,
 )
 from services.search import search_profiles
 from models import Profile
@@ -72,13 +73,30 @@ def update_profile(profile_id: str, body: dict):
 
 @router.post("/profile/{profile_id}/upload")
 async def upload_file(profile_id: str, file: UploadFile = File(...)):
-    """Upload a file for a profile (avatar, project image, CV, etc.)."""
-    user_dir = UPLOADS_DIR / profile_id
-    user_dir.mkdir(parents=True, exist_ok=True)
-    dest = user_dir / file.filename
+    """Upload a file to Supabase Storage (falls back to local disk)."""
     contents = await file.read()
-    dest.write_bytes(contents)
-    return {"url": f"/uploads/{profile_id}/{file.filename}"}
+    filename = file.filename or "upload"
+    storage_path = f"{profile_id}/{filename}"
+
+    try:
+        supabase = get_supabase()
+        supabase.storage.from_("uploads").upload(
+            storage_path,
+            contents,
+            file_options={
+                "content-type": file.content_type or "application/octet-stream",
+                "upsert": "true",
+            },
+        )
+        public_url = supabase.storage.from_("uploads").get_public_url(storage_path)
+        return {"url": public_url}
+    except Exception:
+        # Fallback to local disk storage
+        user_dir = UPLOADS_DIR / profile_id
+        user_dir.mkdir(parents=True, exist_ok=True)
+        dest = user_dir / filename
+        dest.write_bytes(contents)
+        return {"url": f"/uploads/{profile_id}/{filename}"}
 
 
 @router.get("/uploads/{profile_id}/{filename}")

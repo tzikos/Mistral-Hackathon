@@ -36,7 +36,7 @@ interface AboutProps {
 
 const About: React.FC<AboutProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const { about, links } = profile;
+  const { about } = profile;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -73,25 +73,9 @@ const About: React.FC<AboutProps> = ({ profile }) => {
                 <span className="badge bg-secondary text-secondary-foreground mb-6">
                   About Me
                 </span>
-                <h2 className="section-heading">
-                  Life Enthusiast
-                </h2>
                 {about.bio.map((paragraph, i) => (
                   <p key={i} className="text-muted-foreground text-lg mb-6">
                     {paragraph}
-                    {i === about.bio.length - 1 && links.instagram && (
-                      <>
-                        {" "}I invite you to take a look at my Instagram
-                        <a
-                          href={links.instagram}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          <b> portfolio</b>
-                        </a>.
-                      </>
-                    )}
                   </p>
                 ))}
 
@@ -111,13 +95,14 @@ const About: React.FC<AboutProps> = ({ profile }) => {
                 {about.expertise.filter((_, i) => i % 2 === 0).map((exp, i) => {
                   const IconComp = iconMap[exp.icon] || Database;
                   return (
-                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d group relative overflow-hidden">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 rounded-lg pointer-events-none" />
                       <IconComp
-                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        className={`relative h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
                         style={i > 0 ? { animationDelay: `${i * 0.5}s` } : undefined}
                       />
-                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
-                      <p className="text-muted-foreground">{exp.description}</p>
+                      <h3 className="relative text-xl font-medium mb-2 group-hover:text-white transition-colors duration-300">{exp.title}</h3>
+                      <p className="relative text-muted-foreground group-hover:text-white/90 transition-colors duration-300">{exp.description}</p>
                     </div>
                   );
                 })}
@@ -128,13 +113,14 @@ const About: React.FC<AboutProps> = ({ profile }) => {
                 {about.expertise.filter((_, i) => i % 2 === 1).map((exp, i) => {
                   const IconComp = iconMap[exp.icon] || Database;
                   return (
-                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d">
+                    <div key={exp.title} className="glass-card p-6 hover-lift gradient-border card-3d group relative overflow-hidden">
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 rounded-lg pointer-events-none" />
                       <IconComp
-                        className={`h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
+                        className={`relative h-10 w-10 ${colorMap[exp.color] || "text-blue-500"} mb-4 icon-float`}
                         style={{ animationDelay: `${(i + 1) * 0.5 + 0.5}s` }}
                       />
-                      <h3 className="text-xl font-medium mb-2">{exp.title}</h3>
-                      <p className="text-muted-foreground">{exp.description}</p>
+                      <h3 className="relative text-xl font-medium mb-2 group-hover:text-white transition-colors duration-300">{exp.title}</h3>
+                      <p className="relative text-muted-foreground group-hover:text-white/90 transition-colors duration-300">{exp.description}</p>
                     </div>
                   );
                 })}

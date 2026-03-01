@@ -503,6 +503,16 @@
 }
 .avatar-glow-pulse { animation: avatar-glow-pulse 3s ease-in-out infinite; }
 
+/* Mic breathing animation for recording state */
+@keyframes mic-breathing {
+  0%, 100% { transform: scale(1.1); box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+  50% { transform: scale(1.28); box-shadow: 0 0 40px rgba(239, 68, 68, 0.8); }
+}
+
+.mic-recording {
+  animation: mic-breathing 1s ease-in-out infinite;
+}
+
 /* Scroll to top button animation */
 .scroll-top-animated {
   transition: all 0.3s ease;

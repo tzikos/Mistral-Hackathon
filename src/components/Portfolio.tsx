@@ -32,17 +32,18 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
             />
           </div>
         )}
-        <div className="p-6">
-          <h3 className="text-xl font-medium mb-2">{project.title}</h3>
-          <p className="text-muted-foreground mb-4">{project.description}</p>
-          <div className="flex flex-wrap gap-2 mb-4">
+        <div className="p-6 relative overflow-hidden">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-300 pointer-events-none" />
+          <h3 className="relative text-xl font-medium mb-2 group-hover:text-white transition-colors duration-300">{project.title}</h3>
+          <p className="relative text-muted-foreground mb-4 group-hover:text-white/90 transition-colors duration-300">{project.description}</p>
+          <div className="relative flex flex-wrap gap-2 mb-4">
             {project.tags.map((tag, i) => (
               <span key={i} className="badge text-xs bg-secondary text-secondary-foreground shimmer">
                 {tag}
               </span>
             ))}
           </div>
-          <span className="inline-flex items-center text-sm font-medium text-primary group-hover:text-primary/80 transition-colors">
+          <span className="relative inline-flex items-center text-sm font-medium text-primary group-hover:text-white transition-colors duration-300">
             View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </span>
         </div>
@@ -108,11 +109,8 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
                   Projects
                 </span>
                 <h2 className="section-heading flex items-center">
-                  <BarChart className="mr-2 h-8 w-8" /> Data Science Portfolio
+                  <BarChart className="mr-2 h-8 w-8" /> Projects
                 </h2>
-                <p className="text-muted-foreground text-lg">
-                  A selection of my data science and machine learning projects, showcasing my technical skills and analytical approaches.
-                </p>
               </div>
               {links.projectsLinkedIn && (
                 <a
@@ -167,11 +165,8 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
                   Experience
                 </span>
                 <h2 className="section-heading flex items-center">
-                  <Code className="mr-2 h-8 w-8" /> Professional Journey
+                  <Code className="mr-2 h-8 w-8" /> Work Experience
                 </h2>
-                <p className="text-muted-foreground text-lg">
-                  My work experience and contributions in data analysis, research, and community involvement.
-                </p>
               </div>
               {links.cv && (
                 <a
@@ -225,9 +220,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
                 <h2 className="section-heading flex items-center">
                   <Presentation className="mr-2 h-8 w-8" /> Talks & Awards
                 </h2>
-                <p className="text-muted-foreground text-lg">
-                  Engaging with the community through talks and celebrating achievements.
-                </p>
               </div>
             </div>
 

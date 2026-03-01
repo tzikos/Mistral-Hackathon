@@ -101,16 +101,14 @@ const Index = () => {
       </main>
       <Footer />
 
-      {/* Floating "Talk to" button */}
-      {profile.voice_id && (
-        <Link
-          to={`/${profileId}/agent`}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:shadow-xl transition-all duration-200 group"
-        >
-          <MessageCircle size={20} className="group-hover:animate-bounce" />
-          <span className="font-medium text-sm">Talk to {profile.name}</span>
-        </Link>
-      )}
+      {/* Floating "Talk to" button — always shown; backend falls back to default voice */}
+      <Link
+        to={`/${profileId}/agent`}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:scale-105 hover:shadow-xl transition-all duration-200 group"
+      >
+        <MessageCircle size={20} className="group-hover:animate-bounce" />
+        <span className="font-medium text-sm">Talk to {profile.name}</span>
+      </Link>
     </div>
   );
 };

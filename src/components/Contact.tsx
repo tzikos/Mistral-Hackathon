@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
-import { MapPin, Linkedin, Github, Instagram } from "lucide-react";
+import { MapPin, Linkedin, Github, Instagram, FileDown, Search } from "lucide-react";
 import { Profile } from "@/types/profile";
+import { useNavigate } from "react-router-dom";
 
 interface ContactProps {
   profile: Profile;
@@ -8,6 +9,7 @@ interface ContactProps {
 
 const Contact: React.FC<ContactProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -30,7 +32,7 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
     };
   }, []);
 
-  const hasAnySocialLink = profile.links.linkedIn || profile.links.github || profile.links.instagram;
+  const hasAnySocialLink = profile.links.linkedIn || profile.links.github || profile.links.instagram || profile.links.cv;
 
   return (
     <section
@@ -100,6 +102,24 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                     </div>
                   </div>
                 )}
+
+                {profile.links.cv && (
+                  <div className="flex items-start">
+                    <FileDown className="h-5 w-5 mr-3 text-primary mt-1" />
+                    <div>
+                      <h4 className="font-medium mb-1">CV / Resume</h4>
+                      <a
+                        href={profile.links.cv}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        download
+                      >
+                        Download CV
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {hasAnySocialLink && (
@@ -139,9 +159,31 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                         <Github size={20} />
                       </a>
                     )}
+                    {profile.links.cv && (
+                      <a
+                        href={profile.links.cv}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
+                        aria-label="Download CV"
+                        download
+                      >
+                        <FileDown size={20} />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
+
+              <div className="mt-6 pt-6 border-t">
+                <button
+                  onClick={() => navigate("/search")}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg border border-primary/20 hover:bg-secondary transition-all duration-300 text-sm font-medium"
+                >
+                  <Search size={16} />
+                  Search Other Professionals
+                </button>
+              </div>
             </div>
           </div>
         </div>
