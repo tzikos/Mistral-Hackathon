@@ -5,6 +5,7 @@ import tempfile
 
 import httpx
 from fastapi import APIRouter, Form, HTTPException, UploadFile, File
+from pydantic import BaseModel
 
 from db import db_get_profile, db_upsert_profile, db_profile_exists
 from prompts import build_system_prompt
@@ -182,6 +183,54 @@ async def voice_chat(
             os.unlink(tmp.name)
         except OSError:
             pass
+
+
+class TextChatRequest(BaseModel):
+    text: str
+    session_id: str
+
+
+@router.post("/profile/{profile_id}/chat/text")
+async def text_chat(profile_id: str, body: TextChatRequest):
+    """Text conversation: Mistral completion → ElevenLabs TTS.
+
+    Accepts plain text and a session_id, returns JSON with reply text and
+    base64-encoded audio. Shares the same session history as voice chat.
+    """
+    profile_data = read_profile(profile_id)
+
+    if not body.text.strip():
+        raise HTTPException(status_code=400, detail="Empty message")
+
+    try:
+        client = get_mistral_client()
+
+        history = _sessions.get(body.session_id, [])
+        history.append({"role": "user", "content": body.text})
+
+        system_prompt = build_system_prompt(profile_data)
+        reply_text = get_chat_reply(client, system_prompt, history)
+
+        history.append({"role": "assistant", "content": reply_text})
+        _sessions[body.session_id] = history
+
+        voice_id = profile_data.get("voice_id") or None
+        audio_b64 = None
+        audio_bytes_out = await synthesize_speech(reply_text, voice_id)
+        if audio_bytes_out:
+            audio_b64 = base64.b64encode(audio_bytes_out).decode("utf-8")
+
+        return {
+            "transcription": body.text,
+            "reply": reply_text,
+            "audio": {"base64": audio_b64, "format": "mp3"} if audio_b64 else None,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Text chat failed")
+        raise HTTPException(status_code=500, detail=f"Text chat failed: {e}")
 
 
 @router.delete("/profile/{profile_id}/chat/{session_id}")

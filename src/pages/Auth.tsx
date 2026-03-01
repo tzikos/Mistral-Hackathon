@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,9 +17,18 @@ const Auth = () => {
   const [submitting, setSubmitting] = useState(false);
   const { login, register, isAuthenticated, isLoading, profileId } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+
+  const getDefaultDestination = () => {
+    if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+      return redirectTo;
+    }
+    return profileId ? `/${profileId}` : "/search";
+  };
 
   if (!isLoading && isAuthenticated) {
-    return <Navigate to={profileId ? `/${profileId}` : "/search"} replace />;
+    return <Navigate to={getDefaultDestination()} replace />;
   }
 
   const resetForm = () => {
@@ -39,7 +48,10 @@ const Auth = () => {
     setSubmitting(true);
     try {
       const id = await login(username, password);
-      navigate(`/${id}`);
+      const destination = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+        ? redirectTo
+        : `/${id}`;
+      navigate(destination);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -52,8 +64,11 @@ const Auth = () => {
     setError(null);
     setSubmitting(true);
     try {
-      const profileId = await register(username, password);
-      navigate(`/${profileId}/edit`);
+      const newProfileId = await register(username, password);
+      const destination = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")
+        ? redirectTo
+        : `/${newProfileId}/edit`;
+      navigate(destination);
     } catch (err: any) {
       setError(err.message);
     } finally {

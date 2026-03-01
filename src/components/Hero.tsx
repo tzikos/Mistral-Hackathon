@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Profile } from "@/types/profile";
+import AvatarFallback from "@/components/AvatarFallback";
 
 interface HeroProps {
   profile: Profile;
@@ -10,8 +11,6 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const [avatarError, setAvatarError] = useState(false);
-  const handleAvatarError = useCallback(() => setAvatarError(true), []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -75,18 +74,11 @@ const Hero: React.FC<HeroProps> = ({ profile }) => {
           <div className="animate-on-scroll opacity-0 transition-opacity duration-1000 flex justify-center mb-8">
             <div className="w-40 h-40 md:w-52 md:h-52 rounded-full p-[3px] avatar-glow-pulse" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2, #f093fb, #f5576c, #667eea)', backgroundSize: '300% 300%', animation: 'gradient-rotate 4s linear infinite, avatar-glow-pulse 3s ease-in-out infinite' }}>
               <div className="w-full h-full rounded-full overflow-hidden">
-                {profile.avatar && !avatarError ? (
-                  <img
-                    src={profile.avatar}
-                    alt={profile.name}
-                    className="w-full h-full object-cover"
-                    onError={handleAvatarError}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-5xl md:text-6xl font-bold">
-                    {profile.name.charAt(0)}
-                  </div>
-                )}
+                <AvatarFallback
+                  src={profile.avatar}
+                  name={profile.name}
+                  textClassName="text-5xl md:text-6xl font-bold"
+                />
               </div>
             </div>
           </div>

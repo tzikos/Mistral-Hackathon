@@ -4,6 +4,7 @@ import { Search, User, Loader2, MessageCircle, LogOut, Sparkles } from "lucide-r
 import { useAuth } from "@/contexts/AuthContext";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
+import AvatarFallback from "@/components/AvatarFallback";
 
 interface ProfileCard {
   id: string;
@@ -25,18 +26,6 @@ const SUGGESTIONS = [
   "mobile developer",
 ];
 
-function Initials({ name }: { name: string }) {
-  const parts = name.trim().split(/\s+/);
-  const letters =
-    parts.length >= 2
-      ? parts[0][0] + parts[parts.length - 1][0]
-      : (parts[0] || "?").slice(0, 2);
-  return (
-    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/40 to-primary/20 rounded-full text-white font-semibold text-lg select-none">
-      {letters.toUpperCase()}
-    </div>
-  );
-}
 
 function ProfileCardComponent({
   card,
@@ -57,15 +46,7 @@ function ProfileCardComponent({
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-gray-200 group-hover:ring-primary/30 transition-all">
-          {card.avatar ? (
-            <img
-              src={card.avatar}
-              alt={card.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <Initials name={card.name} />
-          )}
+          <AvatarFallback src={card.avatar} name={card.name} textClassName="text-lg" />
         </div>
 
         {/* Info */}

@@ -1,15 +1,29 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Mic, MicOff, Volume2, Loader2, User, RotateCcw } from "lucide-react";
+import { ArrowLeft, Mic, MicOff, Volume2, Loader2, RotateCcw, SendHorizontal } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import type { Profile } from "@/types/profile";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
+import AvatarFallback from "@/components/AvatarFallback";
+
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  // Fallback for HTTP (non-secure) contexts where crypto.randomUUID is unavailable
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
 
 function getOrCreateSessionId(profileId: string): string {
   const key = `session_id_${profileId}`;
   const existing = localStorage.getItem(key);
   if (existing) return existing;
-  const id = crypto.randomUUID();
+  const id = generateUUID();
   localStorage.setItem(key, id);
   return id;
 }
@@ -34,6 +48,7 @@ const Agent = () => {
   const [status, setStatus] = useState<Status>("idle");
   const [chat, setChat] = useState<ChatEntry[]>([]);
   const [currentTranscript, setCurrentTranscript] = useState("");
+  const [textInput, setTextInput] = useState("");
   const sessionIdRef = useRef<string>("");
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -201,6 +216,53 @@ const Agent = () => {
     }
   };
 
+  const sendText = async () => {
+    const text = textInput.trim();
+    if (!text || !profileId || status === "processing") return;
+    setTextInput("");
+    setStatus("processing");
+
+    try {
+      const res = await fetch(apiUrl(`/profile/${profileId}/chat/text`), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, session_id: sessionIdRef.current }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Chat request failed");
+      }
+
+      const data = await res.json();
+      const entry: ChatEntry = {
+        id: Date.now().toString(),
+        userText: data.transcription || text,
+        aiText: data.reply || "I couldn't generate a response.",
+        audioB64: data.audio?.base64 || null,
+      };
+
+      setChat((prev) => [...prev, entry]);
+
+      if (entry.audioB64) {
+        setStatus("speaking");
+        const audioData = Uint8Array.from(atob(entry.audioB64), (c) => c.charCodeAt(0));
+        const blob = new Blob([audioData], { type: "audio/mpeg" });
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audioRef.current = audio;
+        audio.onended = () => { setStatus("idle"); URL.revokeObjectURL(url); };
+        audio.onerror = () => { setStatus("idle"); URL.revokeObjectURL(url); };
+        await audio.play();
+      } else {
+        setStatus("idle");
+      }
+    } catch (err: any) {
+      setError(err.message);
+      setStatus("idle");
+    }
+  };
+
   const stopAudio = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -228,13 +290,18 @@ const Agent = () => {
 
   // Keyboard handlers
   useEffect(() => {
+    const isTyping = (e: KeyboardEvent) =>
+      e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isTyping(e)) return;
       if (e.code === "Space" && status === "idle" && !e.repeat) {
         e.preventDefault();
         startRecording();
       }
     };
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (isTyping(e)) return;
       if (e.code === "Space" && status === "recording") {
         e.preventDefault();
         stopRecording();
@@ -306,17 +373,9 @@ const Agent = () => {
           <Logo size="sm" />
         </div>
         <div className="flex items-center gap-3">
-          {profile?.avatar ? (
-            <img
-              src={profile.avatar}
-              alt={profile.name}
-              className="w-8 h-8 rounded-full object-cover border border-white/20"
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-              <User size={16} className="text-primary" />
-            </div>
-          )}
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
+            <AvatarFallback src={profile?.avatar} name={profile?.name ?? ""} textClassName="text-xs" />
+          </div>
           <span className="font-medium text-sm hidden sm:inline">
             Talk to {profile?.name || "AI"}
           </span>
@@ -337,16 +396,8 @@ const Agent = () => {
       <div className="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6">
         {chat.length === 0 && status === "idle" && (
           <div className="flex flex-col items-center justify-center h-full min-h-[300px] text-center space-y-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center">
-              {profile?.avatar ? (
-                <img
-                  src={profile.avatar}
-                  alt=""
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-              ) : (
-                <User size={32} className="text-primary" />
-              )}
+            <div className="w-20 h-20 rounded-full overflow-hidden">
+              <AvatarFallback src={profile?.avatar} name={profile?.name ?? ""} textClassName="text-2xl" />
             </div>
             <h2 className="text-xl font-semibold">
               Hi! I'm {profile?.name}'s AI representative
@@ -373,16 +424,12 @@ const Agent = () => {
             <div className="flex justify-start gap-3">
               {/* Profile avatar */}
               <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
-                {profile?.avatar ? (
-                  <img src={profile.avatar} alt={profile?.name || ""} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-                    <User size={16} className="text-primary" />
-                  </div>
-                )}
+                <AvatarFallback src={profile?.avatar} name={profile?.name ?? ""} textClassName="text-xs" />
               </div>
               <div className="max-w-[75%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3">
-                <p className="text-sm">{entry.aiText}</p>
+                <div className="text-sm prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:text-white prose-a:text-primary prose-code:text-primary/90 prose-code:bg-white/10 prose-code:px-1 prose-code:rounded prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
+                  <ReactMarkdown>{entry.aiText}</ReactMarkdown>
+                </div>
                 {entry.audioB64 && (
                   <button
                     onClick={() => {
@@ -432,7 +479,33 @@ const Agent = () => {
       )}
 
       {/* Bottom control */}
-      <div className="border-t border-white/10 px-4 sm:px-8 py-6">
+      <div className="border-t border-white/10 px-4 sm:px-8 py-4">
+        {/* Text input row */}
+        <div className="flex items-center gap-2 mb-4 bg-white/5 border border-white/10 rounded-2xl px-3 py-1.5 focus-within:border-primary/40 transition-colors">
+          <input
+            type="text"
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendText();
+              }
+            }}
+            placeholder="Type a message…"
+            disabled={status === "processing" || status === "recording"}
+            className="flex-1 bg-transparent py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none disabled:opacity-40"
+          />
+          <button
+            onClick={sendText}
+            disabled={!textInput.trim() || status === "processing" || status === "recording"}
+            className="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-xl bg-primary hover:bg-primary/80 text-white transition disabled:opacity-30 disabled:cursor-not-allowed"
+            aria-label="Send message"
+          >
+            <SendHorizontal size={17} />
+          </button>
+        </div>
+
         <div className="flex flex-col items-center gap-3">
           <p className={`text-sm font-medium ${statusColor} transition-colors`}>
             {statusLabel}
