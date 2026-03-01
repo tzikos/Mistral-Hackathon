@@ -5,11 +5,23 @@ import type { Profile } from "@/types/profile";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
 
+function generateUUID(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  // Fallback for HTTP (non-secure) contexts where crypto.randomUUID is unavailable
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 function getOrCreateSessionId(profileId: string): string {
   const key = `session_id_${profileId}`;
   const existing = localStorage.getItem(key);
   if (existing) return existing;
-  const id = crypto.randomUUID();
+  const id = generateUUID();
   localStorage.setItem(key, id);
   return id;
 }
