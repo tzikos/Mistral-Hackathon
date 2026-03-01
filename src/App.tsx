@@ -2,7 +2,7 @@ import React from "react";
 import { Toaster as SonnerToaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
@@ -25,6 +25,26 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
+
+/** Redirects unauthenticated users to login with return URL; after auth, they come back here. */
+function AuthRequiredRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    const redirectTo = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/?redirect=${redirectTo}`} replace />;
+  }
   return <>{children}</>;
 }
 
@@ -63,7 +83,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route path="/:profileId" element={<Index />} />
+            <Route
+              path="/:profileId"
+              element={
+                <AuthRequiredRoute>
+                  <Index />
+                </AuthRequiredRoute>
+              }
+            />
             <Route
               path="/:profileId/edit"
               element={
@@ -72,7 +99,14 @@ const App = () => (
                 </OwnerOnlyRoute>
               }
             />
-            <Route path="/:profileId/agent" element={<Agent />} />
+            <Route
+              path="/:profileId/agent"
+              element={
+                <AuthRequiredRoute>
+                  <Agent />
+                </AuthRequiredRoute>
+              }
+            />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
