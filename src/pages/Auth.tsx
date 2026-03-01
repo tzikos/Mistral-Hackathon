@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Logo from "@/components/Logo";
+import GlobalMenu from "@/components/GlobalMenu";
 
 type Mode = "signin" | "signup";
 
@@ -77,7 +78,11 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-gray-900">
+      {/* Global menu — top right */}
+      <div className="absolute top-4 right-4 z-10">
+        <GlobalMenu />
+      </div>
       {/* Floating orbs background */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl animate-pulse" />
