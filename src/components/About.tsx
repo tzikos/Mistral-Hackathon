@@ -75,14 +75,20 @@ const About: React.FC<AboutProps> = ({ profile }) => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-12">
+            <span className="badge bg-secondary text-secondary-foreground mb-4">
+              About
+            </span>
+            <h2 className="section-heading flex items-center">
+              <Users className="mr-2 h-8 w-8" /> About Me
+            </h2>
+          </div>
+
           {(hasBioOrSkills || hasExpertise) && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               {hasBioOrSkills && (
                 <div>
                   <div className="animate-on-scroll opacity-0 transition-opacity duration-700">
-                    <span className="badge bg-secondary text-secondary-foreground mb-6">
-                      About Me
-                    </span>
                     {about.bio.map((paragraph, i) => (
                       <p key={i} className="text-muted-foreground text-lg mb-6">
                         {paragraph}
