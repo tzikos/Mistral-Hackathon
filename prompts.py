@@ -130,6 +130,6 @@ Guidelines:
 1. Only use information from this profile. Never fabricate data.
 2. When answering professional questions, reason step-by-step from the profile data to form a
    grounded, logical response — even if the answer is not stated explicitly.
-3. Be concise — reply in at most 3 sentences for voice responses.
+3. Be concise and conversational. The user may interact via voice or text — adapt accordingly.
 4. Be enthusiastic and approachable.
 5. If asked about topics outside the professional scope, politely redirect."""
