@@ -502,6 +502,10 @@ const CreateProfile = () => {
   const [step, setStep] = useState(0);
   const [profile, setProfile] = useState<Profile>(emptyProfile);
   const [loading, setLoading] = useState(!!paramProfileId);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
   const [saving, setSaving] = useState(false);
 
   // Account step state (create mode only)
