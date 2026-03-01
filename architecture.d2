@@ -1,0 +1,332 @@
+title: AskMe.stral — Architecture & Provider Connections {
+  near: top-center
+  shape: text
+  style: {
+    font-size: 32
+    bold: true
+    font-color: "#1e1b4b"
+  }
+}
+
+direction: right
+
+# ── User ───────────────────────────────────────────────────────────────
+
+User: {
+  shape: person
+  style: {
+    fill: "#f8fafc"
+    stroke: "#94a3b8"
+    font-size: 14
+    bold: true
+  }
+}
+
+# ── Frontend ───────────────────────────────────────────────────────────
+
+Frontend: "React App" {
+  style: {
+    fill: "#eff6ff"
+    stroke: "#3b82f6"
+    border-radius: 14
+    bold: true
+  }
+
+  Landing: "Landing\n(Talent Search)" {
+    style: {
+      fill: "#dbeafe"
+      stroke: "#3b82f6"
+      border-radius: 8
+    }
+  }
+
+  Agent: "Agent\n(Chat + Voice)" {
+    style: {
+      fill: "#dbeafe"
+      stroke: "#3b82f6"
+      border-radius: 8
+    }
+  }
+
+  Wizard: "Profile Wizard\n(Create / Edit)" {
+    style: {
+      fill: "#dbeafe"
+      stroke: "#3b82f6"
+      border-radius: 8
+    }
+  }
+}
+
+# ── Backend ────────────────────────────────────────────────────────────
+
+Backend: "FastAPI Backend" {
+  style: {
+    fill: "#faf5ff"
+    stroke: "#7c3aed"
+    border-radius: 14
+    bold: true
+  }
+
+  ProfilesAPI: "Profiles API" {
+    style: {
+      fill: "#ede9fe"
+      stroke: "#7c3aed"
+      border-radius: 8
+    }
+  }
+
+  AgentAPI: "Agent API" {
+    style: {
+      fill: "#ede9fe"
+      stroke: "#7c3aed"
+      border-radius: 8
+    }
+  }
+
+  BGTask: "Background Tasks\n(Embeddings)" {
+    style: {
+      fill: "#ede9fe"
+      stroke: "#7c3aed"
+      border-radius: 8
+      stroke-dash: 5
+    }
+  }
+}
+
+# ── Providers (stacked vertically) ─────────────────────────────────────
+
+Providers: "" {
+  direction: down
+  style: {
+    fill: transparent
+    stroke: transparent
+  }
+
+  # ── Mistral ──────────────────────────────────────────────────────────
+
+  Mistral: "Mistral API" {
+    style: {
+      fill: "#fff7ed"
+      stroke: "#f97316"
+      border-radius: 14
+      bold: true
+    }
+
+    OCR: "mistral-ocr\n(CV parsing)" {
+      style: {
+        fill: "#ffedd5"
+        stroke: "#f97316"
+        border-radius: 8
+      }
+    }
+
+    Small: "mistral-small-latest\n(keyword generation)" {
+      style: {
+        fill: "#ffedd5"
+        stroke: "#f97316"
+        border-radius: 8
+      }
+    }
+
+    Embed: "mistral-embed\n(1024-dim vectors)" {
+      style: {
+        fill: "#ffedd5"
+        stroke: "#f97316"
+        border-radius: 8
+      }
+    }
+
+    Large: "mistral-large-latest\n(chat completion)" {
+      style: {
+        fill: "#ffedd5"
+        stroke: "#f97316"
+        border-radius: 8
+      }
+    }
+  }
+
+  # ── ElevenLabs ───────────────────────────────────────────────────────
+
+  ElevenLabs: "ElevenLabs" {
+    style: {
+      fill: "#f5f3ff"
+      stroke: "#6d28d9"
+      border-radius: 14
+      bold: true
+    }
+
+    Clone: "Voice Cloning" {
+      style: {
+        fill: "#ede9fe"
+        stroke: "#6d28d9"
+        border-radius: 8
+      }
+    }
+
+    STT: "Speech-to-Text" {
+      style: {
+        fill: "#ede9fe"
+        stroke: "#6d28d9"
+        border-radius: 8
+      }
+    }
+
+    TTS: "Text-to-Speech" {
+      style: {
+        fill: "#ede9fe"
+        stroke: "#6d28d9"
+        border-radius: 8
+      }
+    }
+  }
+
+  # ── Supabase ─────────────────────────────────────────────────────────
+
+  Supabase: "Supabase" {
+    style: {
+      fill: "#f0fdf4"
+      stroke: "#16a34a"
+      border-radius: 14
+      bold: true
+    }
+
+    DB: "PostgreSQL\n(profiles + JSONB)" {
+      style: {
+        fill: "#dcfce7"
+        stroke: "#16a34a"
+        border-radius: 8
+      }
+    }
+
+    PGVector: "pgvector\nmatch_profiles()" {
+      style: {
+        fill: "#dcfce7"
+        stroke: "#16a34a"
+        border-radius: 8
+      }
+    }
+
+    Storage: "Storage\n(avatars & CVs)" {
+      style: {
+        fill: "#dcfce7"
+        stroke: "#16a34a"
+        border-radius: 8
+      }
+    }
+  }
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# Connections
+# ═══════════════════════════════════════════════════════════════════════
+
+# ── User → Frontend ────────────────────────────────────────────────────
+
+User -> Frontend.Landing: "search talent"
+User -> Frontend.Agent: "chat / voice"
+User -> Frontend.Wizard: "build profile"
+
+# ── Frontend → Backend ─────────────────────────────────────────────────
+
+Frontend.Landing -> Backend.ProfilesAPI: "/profiles/search\n/profiles/deep-search"
+Frontend.Agent -> Backend.AgentAPI: "/agent/chat"
+Frontend.Wizard -> Backend.ProfilesAPI: "POST /profile\nPOST /profile/:id/upload"
+
+# ── Profile CRUD ↔ Supabase ────────────────────────────────────────────
+
+Backend.ProfilesAPI <-> Providers.Supabase.DB: "read / write profiles" {
+  style: {
+    stroke: "#16a34a"
+  }
+}
+
+Backend.ProfilesAPI -> Providers.Supabase.Storage: "upload avatar & CV" {
+  style.stroke: "#16a34a"
+}
+Providers.Supabase.Storage -> Backend.ProfilesAPI: "public URL" {
+  style.stroke: "#16a34a"
+}
+
+# ── CV Parsing ─────────────────────────────────────────────────────────
+
+Backend.ProfilesAPI -> Providers.Mistral.OCR: "CV (PDF)" {
+  style.stroke: "#f97316"
+}
+Providers.Mistral.OCR -> Backend.ProfilesAPI: "structured profile JSON" {
+  style.stroke: "#f97316"
+}
+
+# ── Embedding Pipeline (background) ───────────────────────────────────
+
+Backend.ProfilesAPI -> Backend.BGTask: "on create / update" {
+  style: {
+    stroke: "#7c3aed"
+    stroke-dash: 5
+  }
+}
+Backend.BGTask -> Providers.Mistral.Small: "profile summary text" {
+  style.stroke: "#f97316"
+}
+Providers.Mistral.Small -> Backend.BGTask: "5–7 keywords" {
+  style.stroke: "#f97316"
+}
+Backend.BGTask -> Providers.Mistral.Embed: "text + keywords" {
+  style.stroke: "#f97316"
+}
+Providers.Mistral.Embed -> Backend.BGTask: "vector[1024]" {
+  style.stroke: "#f97316"
+}
+Backend.BGTask -> Providers.Supabase.PGVector: "upsert embedding" {
+  style.stroke: "#16a34a"
+}
+
+# ── Deep Search ────────────────────────────────────────────────────────
+
+Backend.ProfilesAPI -> Providers.Mistral.Embed: "search query" {
+  style.stroke: "#f97316"
+}
+Providers.Mistral.Embed -> Backend.ProfilesAPI: "query vector[1024]" {
+  style.stroke: "#f97316"
+}
+Backend.ProfilesAPI -> Providers.Supabase.PGVector: "cosine similarity RPC" {
+  style.stroke: "#16a34a"
+}
+Providers.Supabase.PGVector -> Backend.ProfilesAPI: "ranked profiles" {
+  style.stroke: "#16a34a"
+}
+
+# ── Voice Cloning ──────────────────────────────────────────────────────
+
+Backend.ProfilesAPI -> Providers.ElevenLabs.Clone: "voice sample" {
+  style.stroke: "#6d28d9"
+}
+Providers.ElevenLabs.Clone -> Backend.ProfilesAPI: "voice_id" {
+  style.stroke: "#6d28d9"
+}
+
+# ── Agent Chat ─────────────────────────────────────────────────────────
+
+Backend.AgentAPI -> Providers.Mistral.Large: "system prompt + history" {
+  style.stroke: "#f97316"
+}
+Providers.Mistral.Large -> Backend.AgentAPI: "reply text" {
+  style.stroke: "#f97316"
+}
+
+# ── Agent Voice ────────────────────────────────────────────────────────
+
+Frontend.Agent -> Backend.AgentAPI: "audio blob" {
+  style.stroke: "#6d28d9"
+}
+Backend.AgentAPI -> Providers.ElevenLabs.STT: "audio blob" {
+  style.stroke: "#6d28d9"
+}
+Providers.ElevenLabs.STT -> Backend.AgentAPI: "transcript" {
+  style.stroke: "#6d28d9"
+}
+Backend.AgentAPI -> Providers.ElevenLabs.TTS: "reply text" {
+  style.stroke: "#6d28d9"
+}
+Providers.ElevenLabs.TTS -> Frontend.Agent: "audio stream" {
+  style.stroke: "#6d28d9"
+}

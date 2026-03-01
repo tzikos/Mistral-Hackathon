@@ -1,5 +1,9 @@
 # Mistral Hackathon - AI Personal Profile Platform
 
+## Architecture
+
+![Architecture](architecture.svg)
+
 ## Current Project Structure
 
 ```
