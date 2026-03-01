@@ -1673,11 +1673,12 @@ function StepPortfolio({
 }) {
   const [tab, setTab] = useState<
     "projects" | "workExperience" | "talksAndAwards"
-  >("projects");
+  >("workExperience");
 
-  const tabLabels: Record<typeof tab, string> = {
-    projects: "Projects",
+  const tabOrder = ["workExperience", "projects", "talksAndAwards"] as const;
+  const tabLabels: Record<(typeof tabOrder)[number], string> = {
     workExperience: "Work Experience",
+    projects: "Projects",
     talksAndAwards: "Talks & Awards",
   };
 
@@ -1726,9 +1727,7 @@ function StepPortfolio({
 
       {/* Sub-tabs */}
       <div className="flex gap-2 border-b pb-2">
-        {(
-          Object.keys(tabLabels) as Array<keyof typeof tabLabels>
-        ).map((key) => (
+        {tabOrder.map((key) => (
           <button
             key={key}
             onClick={() => setTab(key)}
