@@ -3,6 +3,7 @@ import React from "react";
 import { ChevronUp, Github, Linkedin, Instagram, FileDown } from "lucide-react";
 import { Profile } from "@/types/profile";
 import { externalUrl } from "@/lib/utils";
+import { apiUrl } from "@/lib/api";
 
 interface FooterProps {
   profile: Profile;
@@ -35,7 +36,7 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
             <p className="text-muted-foreground">{profile.headline}</p>
           </div>
 
-          {(profile.links.linkedIn || profile.links.github || profile.links.instagram || profile.links.cv) && (
+          {(profile.links.linkedIn || profile.links.github || profile.links.instagram || (profile.links.cv && profile.links.cvVisible !== false)) && (
             <div className="flex space-x-6 mb-8">
               {profile.links.linkedIn && (
                 <a
@@ -70,13 +71,10 @@ const Footer: React.FC<FooterProps> = ({ profile }) => {
                   Instagram
                 </a>
               )}
-              {profile.links.cv && (
+              {profile.links.cv && profile.links.cvVisible !== false && (
                 <a
-                  href={externalUrl(profile.links.cv!)}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href={apiUrl(`/profile/${profile.id}/cv/download`)}
                   className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
-                  download
                 >
                   <FileDown className="mr-1 h-4 w-4" />
                   CV

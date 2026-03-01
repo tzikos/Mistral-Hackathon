@@ -1,5 +1,6 @@
+import httpx
 from fastapi import APIRouter, HTTPException, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 from config import UPLOADS_DIR
 from db import (
@@ -59,7 +60,9 @@ def update_profile(profile_id: str, body: dict):
 
     def _deep_merge(base: dict, patch: dict) -> dict:
         for key, value in patch.items():
-            if isinstance(value, dict) and isinstance(base.get(key), dict):
+            if value is None:
+                base.pop(key, None)  # null means "remove this key"
+            elif isinstance(value, dict) and isinstance(base.get(key), dict):
                 base[key] = _deep_merge(base[key], value)
             else:
                 base[key] = value
@@ -97,6 +100,41 @@ async def upload_file(profile_id: str, file: UploadFile = File(...)):
         dest = user_dir / filename
         dest.write_bytes(contents)
         return {"url": f"/uploads/{profile_id}/{filename}"}
+
+
+@router.get("/profile/{profile_id}/cv/download")
+async def download_cv(profile_id: str):
+    """Proxy-download the profile's CV so the browser downloads it instead of opening it."""
+    profile = db_get_profile(profile_id)
+    cv_url = (profile.get("links") or {}).get("cv")
+    if not cv_url:
+        raise HTTPException(status_code=404, detail="No CV on file")
+
+    # Local file (relative path starting with /)
+    if cv_url.startswith("/uploads/"):
+        local_path = UPLOADS_DIR / "/".join(cv_url.split("/")[2:])
+        if not local_path.exists():
+            raise HTTPException(status_code=404, detail="CV file not found")
+        filename = local_path.name
+        content = local_path.read_bytes()
+    else:
+        # Remote URL (e.g. Supabase public URL) – proxy through backend
+        try:
+            async with httpx.AsyncClient() as client:
+                r = await client.get(cv_url, follow_redirects=True, timeout=30)
+            if r.status_code != 200:
+                raise HTTPException(status_code=502, detail="Could not fetch CV")
+            content = r.content
+        except httpx.RequestError as exc:
+            raise HTTPException(status_code=502, detail=str(exc))
+        # Derive filename from the URL path
+        filename = cv_url.rstrip("/").split("/")[-1].split("?")[0] or "cv.pdf"
+
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
 
 
 @router.get("/uploads/{profile_id}/{filename}")

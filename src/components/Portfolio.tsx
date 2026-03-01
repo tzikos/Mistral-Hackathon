@@ -192,15 +192,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
                   <Code className="mr-2 h-8 w-8" /> Work Experience
                 </h2>
               </div>
-              {links.cv && (
-                <a
-                  href={links.cv}
-                  className="hidden md:inline-flex items-center text-sm font-medium px-4 py-2 rounded-md border hover:bg-secondary transition-colors"
-                  download
-                >
-                  Download CV <ExternalLink className="ml-1 h-4 w-4" />
-                </a>
-              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -215,17 +206,6 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
               ))}
             </div>
 
-            {links.cv && (
-              <div className="mt-10 flex justify-center md:hidden">
-                <a
-                  href={links.cv}
-                  className="inline-flex items-center text-sm font-medium px-4 py-2 rounded-md border hover:bg-secondary transition-colors"
-                  download
-                >
-                  Download CV <ExternalLink className="ml-1 h-4 w-4" />
-                </a>
-              </div>
-            )}
           </div>
         </div>
       </section>}

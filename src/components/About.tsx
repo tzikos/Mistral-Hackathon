@@ -4,9 +4,11 @@ import {
   Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
   Cpu, Globe, Heart, Layers, Lock, Mail, Monitor, Palette, PenTool,
   Rocket, Search, Server, Settings, Shield, Star, Terminal, TrendingUp,
-  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb,
+  Users, Zap, Brain, Camera, Cloud, Compass, FileText, Lightbulb, FileDown,
 } from "lucide-react";
 import { Profile } from "@/types/profile";
+import { externalUrl } from "@/lib/utils";
+import { apiUrl } from "@/lib/api";
 
 const iconMap: Record<string, React.ElementType> = {
   Database, Code, Activity, LineChart, BookOpen, Award, MessageCircle,
@@ -75,13 +77,23 @@ const About: React.FC<AboutProps> = ({ profile }) => {
     >
       <div className="container mx-auto px-4 md:px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-12">
-            <span className="badge bg-secondary text-secondary-foreground mb-4">
-              About
-            </span>
-            <h2 className="section-heading flex items-center">
-              <Users className="mr-2 h-8 w-8" /> About Me
-            </h2>
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <span className="badge bg-secondary text-secondary-foreground mb-4">
+                About
+              </span>
+              <h2 className="section-heading flex items-center">
+                <Users className="mr-2 h-8 w-8" /> About Me
+              </h2>
+            </div>
+            {profile.links.cv && profile.links.cvVisible !== false && (
+              <a
+                href={apiUrl(`/profile/${profile.id}/cv/download`)}
+                className="hidden md:inline-flex items-center text-sm font-medium px-4 py-2 rounded-md border hover:bg-secondary transition-colors"
+              >
+                <FileDown className="mr-1.5 h-4 w-4" /> Download CV
+              </a>
+            )}
           </div>
 
           {(hasBioOrSkills || hasExpertise) && (

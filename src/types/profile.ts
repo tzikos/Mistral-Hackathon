@@ -43,6 +43,7 @@ export interface PortfolioSection {
 
 export interface Links {
   cv?: string;
+  cvVisible?: boolean;
   linkedIn?: string;
   instagram?: string;
   github?: string;

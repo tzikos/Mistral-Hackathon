@@ -713,10 +713,14 @@ const CreateProfile = () => {
     if (!activeProfileId) return;
     setSaving(true);
     try {
+      // Use a replacer that converts undefined → null so the backend removes those keys.
+      const body = JSON.stringify(profile, (_key, value) =>
+        value === undefined ? null : value
+      );
       const res = await fetch(apiUrl(`/profile/${activeProfileId}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile),
+        body,
       });
       if (!res.ok) throw new Error("Save failed");
       navigate(`/${activeProfileId}`);
@@ -2020,19 +2024,60 @@ function StepLinks({
   reparseSuccess?: boolean;
 }) {
   const editCvInputRef = useRef<HTMLInputElement>(null);
+  // Toggle is on when the user explicitly enabled it (cvVisible === true) or
+  // when a CV URL already exists and they haven't explicitly hidden it.
+  const [cvToggled, setCvToggled] = useState(!!links.cv && links.cvVisible !== false);
+
+  const handleCvToggle = () => {
+    if (cvToggled) {
+      setCvToggled(false);
+      updateLinks("cvVisible", false);   // hide — but keep the URL in links.cv
+    } else {
+      setCvToggled(true);
+      updateLinks("cvVisible", true);
+    }
+  };
 
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Links & Finish <HelpTip text="Add external links and upload your CV. All fields are optional. Review the summary below before saving." /></h2>
 
       <div className="space-y-4">
-        <FileUpload
-          profileId={profileId}
-          currentUrl={links.cv}
-          onUploaded={(url) => updateLinks("cv", url)}
-          label="CV (PDF)"
-          accept=".pdf"
-        />
+        {/* CV Download Toggle */}
+        <div className="border rounded-lg p-4 space-y-3">
+          <button
+            type="button"
+            onClick={handleCvToggle}
+            className="flex items-center gap-2 text-sm font-medium hover:text-foreground transition-colors"
+          >
+            {cvToggled ? (
+              <CheckSquare size={18} className="text-primary" />
+            ) : (
+              <Square size={18} className="text-muted-foreground" />
+            )}
+            Show "Download CV" button on my profile
+          </button>
+
+          {cvToggled && (
+            <div className="pl-6 space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Upload your CV as a PDF — it will be stored and linked as a download button on your profile page.
+              </p>
+              <FileUpload
+                profileId={profileId}
+                currentUrl={links.cv}
+                onUploaded={(url) => { updateLinks("cv", url); updateLinks("cvVisible", true); }}
+                label=""
+                accept=".pdf,application/pdf"
+              />
+              {links.cv && (
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                  <CheckCircle2 size={13} /> CV uploaded — visitors can download it from your profile.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
 
         {isEditMode && (
           <div className="border-2 rounded-lg p-5 space-y-4" style={{ borderColor: '#FA520F', backgroundColor: '#FA520F0D' }}>

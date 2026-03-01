@@ -3,6 +3,7 @@ import { MapPin, Linkedin, Github, Instagram, FileDown, Search } from "lucide-re
 import { Profile } from "@/types/profile";
 import { useNavigate } from "react-router-dom";
 import { externalUrl } from "@/lib/utils";
+import { apiUrl } from "@/lib/api";
 
 interface ContactProps {
   profile: Profile;
@@ -33,7 +34,8 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
     };
   }, []);
 
-  const hasAnySocialLink = profile.links.linkedIn || profile.links.github || profile.links.instagram || profile.links.cv;
+  const cvVisible = profile.links.cv && profile.links.cvVisible !== false;
+  const hasAnySocialLink = profile.links.linkedIn || profile.links.github || profile.links.instagram || cvVisible;
 
   return (
     <section
@@ -105,17 +107,14 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                   </div>
                 )}
 
-                {profile.links.cv && (
+                {cvVisible && (
                   <div className="flex items-start">
                     <FileDown className="h-5 w-5 mr-3 text-primary mt-1 shrink-0" />
                     <div>
                       <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">CV / Resume</h4>
                       <a
-                        href={externalUrl(profile.links.cv!)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={apiUrl(`/profile/${profile.id}/cv/download`)}
                         className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
-                        download
                       >
                         Download CV
                       </a>
@@ -161,14 +160,11 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
                         <Github size={20} />
                       </a>
                     )}
-                    {profile.links.cv && (
+                    {cvVisible && (
                       <a
-                        href={externalUrl(profile.links.cv!)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={apiUrl(`/profile/${profile.id}/cv/download`)}
                         className="h-10 w-10 rounded-full flex items-center justify-center bg-white dark:bg-gray-800 social-icon-glow transition-all duration-300"
                         aria-label="Download CV"
-                        download
                       >
                         <FileDown size={20} />
                       </a>
