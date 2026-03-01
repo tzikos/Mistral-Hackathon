@@ -66,13 +66,15 @@ const ProjectDetailDialog: React.FC<ProjectDetailDialogProps> = ({
               </div>
             </DialogHeader>
 
-            <div className="aspect-video overflow-hidden rounded-md mt-4">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {project.image && (
+              <div className="aspect-video overflow-hidden rounded-md mt-4">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
 
             <div className="space-y-4 mt-4">
               <p className="text-muted-foreground">{project.description}</p>
