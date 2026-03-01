@@ -1,8 +1,13 @@
 
 import React from "react";
-import { ChevronUp, Github, Linkedin, Mail, MapPin, Instagram } from "lucide-react";
+import { ChevronUp, Github, Linkedin, Instagram, FileDown } from "lucide-react";
+import { Profile } from "@/types/profile";
 
-const Footer = () => {
+interface FooterProps {
+  profile: Profile;
+}
+
+const Footer: React.FC<FooterProps> = ({ profile }) => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -25,57 +30,65 @@ const Footer = () => {
           </button>
 
           <div className="text-center mb-8">
-            <h3 className="text-xl font-medium mb-2">Dimitris Papantzikos</h3>
-            <p className="text-muted-foreground">
-              Data - ML/AI - MLOps - BI
-            </p>
-            <div className="flex items-center justify-center mt-2 text-muted-foreground">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>Copenhagen, Denmark</span>
-            </div>
+            <h3 className="text-xl font-medium mb-2">{profile.name}</h3>
+            <p className="text-muted-foreground">{profile.headline}</p>
           </div>
 
-          <div className="flex space-x-6 mb-8">
-            <a
-              href="mailto:papantzikos12@gmail.com"
-              target="_blank" // This opens the link in a new tab
-              rel="noopener noreferrer" // This is a security best practice
-              className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
-            >
-              <Mail className="mr-1 h-4 w-4" />
-              Email
-            </a>
-            <a
-              href="https://github.com/tzikos"
-              target="_blank" // This opens the link in a new tab
-              rel="noopener noreferrer" // This is a security best practice
-              className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
-            >
-              <Github className="mr-1 h-4 w-4" />
-              GitHub
-            </a>
-            <a
-              href="https://www.linkedin.com/in/dimitris-papantzikos/"
-              target="_blank" // This opens the link in a new tab
-              rel="noopener noreferrer" // This is a security best practice
-              className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
-            >
-              <Linkedin className="mr-1 h-4 w-4" />
-              LinkedIn
-            </a>
-            <a
-              href="tel:+4591628719"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              +45 91 62 87 19
-            </a>
-          </div>
+          {(profile.links.linkedIn || profile.links.github || profile.links.instagram || profile.links.cv) && (
+            <div className="flex space-x-6 mb-8">
+              {profile.links.linkedIn && (
+                <a
+                  href={profile.links.linkedIn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                >
+                  <Linkedin className="mr-1 h-4 w-4" />
+                  LinkedIn
+                </a>
+              )}
+              {profile.links.github && (
+                <a
+                  href={profile.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                >
+                  <Github className="mr-1 h-4 w-4" />
+                  GitHub
+                </a>
+              )}
+              {profile.links.instagram && (
+                <a
+                  href={profile.links.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                >
+                  <Instagram className="mr-1 h-4 w-4" />
+                  Instagram
+                </a>
+              )}
+              {profile.links.cv && (
+                <a
+                  href={profile.links.cv}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-foreground transition-colors flex items-center"
+                  download
+                >
+                  <FileDown className="mr-1 h-4 w-4" />
+                  CV
+                </a>
+              )}
+            </div>
+          )}
 
           <div className="text-center text-sm text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} Dimitris Papantzikos. All rights reserved.</p>
-            <p className="mt-1">
-              Mathematics | Data Science | Machine Learning
-            </p>
+            <p>&copy; {new Date().getFullYear()} {profile.name}. All rights reserved.</p>
+            {profile.about.skills.length > 0 && (
+              <p className="mt-1">{profile.about.skills.slice(0, 4).join(" | ")}</p>
+            )}
           </div>
         </div>
       </div>

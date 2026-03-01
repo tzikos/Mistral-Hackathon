@@ -99,7 +99,7 @@ const Index = () => {
         <Portfolio profile={profile} />
         <Contact profile={profile} />
       </main>
-      <Footer />
+      <Footer profile={profile} />
 
       {/* Floating "Talk to" button — always shown; backend falls back to default voice */}
       <Link
