@@ -19,3 +19,5 @@ services:
         sync: false
       - key: SUPABASE_KEY
         sync: false
+      - key: DEFAULT_VOICE_ID
+        sync: false

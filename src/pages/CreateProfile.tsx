@@ -1644,6 +1644,7 @@ function StepVoice({
   const [cloning, setCloning] = useState(false);
   const [cloneError, setCloneError] = useState<string | null>(null);
   const [cloned, setCloned] = useState(!!profile.voice_id);
+  const [deleting, setDeleting] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -1693,6 +1694,27 @@ function StepVoice({
       setCloneError(err.message);
     } finally {
       setCloning(false);
+    }
+  };
+
+  const handleDeleteVoice = async () => {
+    if (!profileId) return;
+    setDeleting(true);
+    setCloneError(null);
+    try {
+      const res = await fetch(apiUrl(`/profile/${profileId}/voice`), { method: "DELETE" });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.detail || "Failed to delete voice");
+      }
+      updateField("voice_id", undefined);
+      setCloned(false);
+      setAudioBlob(null);
+      setAudioUrl(null);
+    } catch (err: any) {
+      setCloneError(err.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -1777,11 +1799,27 @@ function StepVoice({
           </Button>
         )}
 
-        {/* Success */}
+        {/* Success + delete */}
         {cloned && (
-          <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 size={18} />
-            Voice cloned successfully! Visitors will hear your AI in your voice.
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 size={18} />
+              Voice cloned successfully! Visitors will hear your AI in your voice.
+            </div>
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleDeleteVoice}
+              disabled={deleting}
+              className="w-full"
+            >
+              {deleting ? (
+                <><Loader2 size={14} className="mr-2 animate-spin" />Deleting voice...</>
+              ) : (
+                <><Trash2 size={14} className="mr-2" />Delete Voice</>
+              )}
+            </Button>
           </div>
         )}
 

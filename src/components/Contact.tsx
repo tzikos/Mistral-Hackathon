@@ -55,15 +55,16 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
           </div>
 
           <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-300">
-            <div className="glass-card p-8 flex flex-col gradient-border glow-effect">
-              <h3 className="text-2xl font-medium mb-6">Contact Information</h3>
+            <div className="glass-card p-8 flex flex-col gradient-border glow-effect group relative overflow-hidden">
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 rounded-lg pointer-events-none" />
+              <h3 className="relative text-2xl font-medium mb-6 group-hover:text-white transition-colors duration-300">Contact Information</h3>
 
-              <div className="space-y-6 flex-grow">
+              <div className="relative space-y-6 flex-grow">
                 <div className="flex items-start">
-                  <MapPin className="h-5 w-5 mr-3 text-primary mt-1" />
+                  <MapPin className="h-5 w-5 mr-3 text-primary mt-1 shrink-0" />
                   <div>
-                    <h4 className="font-medium mb-1">Name</h4>
-                    <p className="text-muted-foreground">
+                    <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">Name</h4>
+                    <p className="text-muted-foreground group-hover:text-white/80 transition-colors duration-300">
                       {profile.name}
                     </p>
                   </div>
@@ -71,14 +72,14 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
 
                 {profile.links.linkedIn && (
                   <div className="flex items-start">
-                    <Linkedin className="h-5 w-5 mr-3 text-primary mt-1" />
+                    <Linkedin className="h-5 w-5 mr-3 text-primary mt-1 shrink-0" />
                     <div>
-                      <h4 className="font-medium mb-1">LinkedIn</h4>
+                      <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">LinkedIn</h4>
                       <a
                         href={profile.links.linkedIn}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
                       >
                         View Profile
                       </a>
@@ -88,14 +89,14 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
 
                 {profile.links.github && (
                   <div className="flex items-start">
-                    <Github className="h-5 w-5 mr-3 text-primary mt-1" />
+                    <Github className="h-5 w-5 mr-3 text-primary mt-1 shrink-0" />
                     <div>
-                      <h4 className="font-medium mb-1">GitHub</h4>
+                      <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">GitHub</h4>
                       <a
                         href={profile.links.github}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
                       >
                         View Profile
                       </a>
@@ -105,14 +106,14 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
 
                 {profile.links.cv && (
                   <div className="flex items-start">
-                    <FileDown className="h-5 w-5 mr-3 text-primary mt-1" />
+                    <FileDown className="h-5 w-5 mr-3 text-primary mt-1 shrink-0" />
                     <div>
-                      <h4 className="font-medium mb-1">CV / Resume</h4>
+                      <h4 className="font-medium mb-1 group-hover:text-white transition-colors duration-300">CV / Resume</h4>
                       <a
                         href={profile.links.cv}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-foreground transition-colors"
+                        className="text-muted-foreground group-hover:text-white/80 hover:underline transition-colors duration-300"
                         download
                       >
                         Download CV
@@ -123,8 +124,8 @@ const Contact: React.FC<ContactProps> = ({ profile }) => {
               </div>
 
               {hasAnySocialLink && (
-                <div className="mt-8 pt-8 border-t">
-                  <h4 className="font-medium mb-4">Connect with me</h4>
+                <div className="relative mt-8 pt-8 border-t border-white/10">
+                  <h4 className="font-medium mb-4 group-hover:text-white transition-colors duration-300">Connect with me</h4>
                   <div className="flex space-x-4">
                     {profile.links.linkedIn && (
                       <a

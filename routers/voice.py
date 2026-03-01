@@ -73,6 +73,35 @@ async def clone_voice(profile_id: str, file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Voice cloning failed: {e}")
 
 
+@router.delete("/profile/{profile_id}/voice")
+async def delete_voice(profile_id: str):
+    """Delete the cloned voice from ElevenLabs and clear voice_id from the profile."""
+    profile_data = db_get_profile(profile_id)
+    voice_id = profile_data.get("voice_id")
+
+    if not voice_id:
+        raise HTTPException(status_code=404, detail="No cloned voice found for this profile")
+
+    api_key = get_elevenlabs_key()
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.delete(
+                f"https://api.elevenlabs.io/v1/voices/{voice_id}",
+                headers={"xi-api-key": api_key},
+            )
+        if resp.status_code not in (200, 204, 404):
+            logger.warning("ElevenLabs voice delete returned %s: %s", resp.status_code, resp.text)
+    except Exception:
+        logger.warning("Failed to delete voice %s from ElevenLabs", voice_id)
+
+    # Always clear from Supabase even if ElevenLabs failed
+    profile_data.pop("voice_id", None)
+    db_upsert_profile(profile_id, profile_data)
+
+    return {"status": "deleted"}
+
+
 @router.get("/profile/{profile_id}/voice-status")
 def voice_status(profile_id: str):
     """Check if a profile has a cloned voice."""

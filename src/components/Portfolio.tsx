@@ -13,14 +13,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
 
+  const hasDetails = !!project.detailedDescription;
+
   return (
     <>
       <div
-        className={`glass-card overflow-hidden group hover-lift glow-effect cursor-pointer ${className}`}
-        onClick={() => setShowDetails(true)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === 'Enter' && setShowDetails(true)}
+        className={`glass-card overflow-hidden group hover-lift glow-effect ${hasDetails ? 'cursor-pointer' : ''} ${className}`}
+        onClick={() => hasDetails && setShowDetails(true)}
+        role={hasDetails ? "button" : undefined}
+        tabIndex={hasDetails ? 0 : undefined}
+        onKeyDown={(e) => hasDetails && e.key === 'Enter' && setShowDetails(true)}
       >
         {project.image && (
           <div className="aspect-video relative overflow-hidden">
@@ -43,17 +45,34 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, className }) => {
               </span>
             ))}
           </div>
-          <span className="relative inline-flex items-center text-sm font-medium text-primary group-hover:text-white transition-colors duration-300">
-            View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
+          <div className="relative flex items-center gap-3">
+            {hasDetails && (
+              <span className="inline-flex items-center text-sm font-medium text-primary group-hover:text-white transition-colors duration-300">
+                View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            )}
+            {project.link && (
+              <a
+                href={project.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center text-sm font-medium text-primary group-hover:text-white transition-colors duration-300 hover:underline"
+              >
+                Visit <ExternalLink className="ml-1 h-3.5 w-3.5" />
+              </a>
+            )}
+          </div>
         </div>
       </div>
 
-      <ProjectDetailDialog
-        project={project}
-        open={showDetails}
-        onOpenChange={setShowDetails}
-      />
+      {hasDetails && (
+        <ProjectDetailDialog
+          project={project}
+          open={showDetails}
+          onOpenChange={setShowDetails}
+        />
+      )}
     </>
   );
 };

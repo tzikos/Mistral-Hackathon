@@ -130,16 +130,17 @@ const About: React.FC<AboutProps> = ({ profile }) => {
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10">
             <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-200">
-              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect">
-                <BookOpen className="h-10 w-10 text-blue-500 mb-6 icon-float" />
-                <h3 className="text-2xl font-medium mb-4">Education</h3>
-                <ul className="space-y-4">
+              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect group relative overflow-hidden">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 rounded-lg pointer-events-none" />
+                <BookOpen className="relative h-10 w-10 text-blue-500 mb-6 icon-float" />
+                <h3 className="relative text-2xl font-medium mb-4 group-hover:text-white transition-colors duration-300">Education</h3>
+                <ul className="relative space-y-4">
                   {about.education.map((edu) => (
                     <li key={edu.degree}>
-                      <div className="font-medium">{edu.degree}</div>
-                      <div className="text-muted-foreground">{edu.institution} | {edu.period}</div>
+                      <div className="font-medium group-hover:text-white transition-colors duration-300">{edu.degree}</div>
+                      <div className="text-muted-foreground group-hover:text-white/80 transition-colors duration-300">{edu.institution} | {edu.period}</div>
                       {edu.focus && (
-                        <div className="text-sm text-muted-foreground mt-1">Focus: {edu.focus}</div>
+                        <div className="text-sm text-muted-foreground group-hover:text-white/70 transition-colors duration-300 mt-1">Focus: {edu.focus}</div>
                       )}
                     </li>
                   ))}
@@ -148,14 +149,15 @@ const About: React.FC<AboutProps> = ({ profile }) => {
             </div>
 
             <div className="animate-on-scroll opacity-0 transition-opacity duration-700 delay-400">
-              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect">
-                <Award className="h-10 w-10 text-amber-500 mb-6 icon-float" style={{ animationDelay: '0.5s' }} />
-                <h3 className="text-2xl font-medium mb-4">Achievements & Certifications</h3>
-                <ul className="space-y-4">
+              <div className="glass-card p-8 hover-lift h-full gradient-border glow-effect group relative overflow-hidden">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 rounded-lg pointer-events-none" />
+                <Award className="relative h-10 w-10 text-amber-500 mb-6 icon-float" style={{ animationDelay: '0.5s' }} />
+                <h3 className="relative text-2xl font-medium mb-4 group-hover:text-white transition-colors duration-300">Achievements & Certifications</h3>
+                <ul className="relative space-y-4">
                   {about.certifications.map((cert) => (
                     <li key={cert.title}>
-                      <div className="font-medium">{cert.title}</div>
-                      <div className="text-muted-foreground">{cert.description}</div>
+                      <div className="font-medium group-hover:text-white transition-colors duration-300">{cert.title}</div>
+                      <div className="text-muted-foreground group-hover:text-white/80 transition-colors duration-300">{cert.description}</div>
                     </li>
                   ))}
                 </ul>
