@@ -6,6 +6,7 @@ import type { Profile } from "@/types/profile";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
 import AvatarFallback from "@/components/AvatarFallback";
+import GlobalMenu from "@/components/GlobalMenu";
 
 function generateUUID(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -317,7 +318,7 @@ const Agent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-950 to-gray-900">
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gradient-to-b dark:from-gray-950 dark:to-gray-900">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -325,11 +326,11 @@ const Agent = () => {
 
   if (error && !profile) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-950 to-gray-900 text-white px-4">
-        <p className="text-red-400 text-lg mb-4">{error}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-gradient-to-b dark:from-gray-950 dark:to-gray-900 text-gray-900 dark:text-white px-4">
+        <p className="text-red-500 dark:text-red-400 text-lg mb-4">{error}</p>
         <button
           onClick={() => navigate("/")}
-          className="px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition"
+          className="px-6 py-3 border border-gray-300 dark:border-white/20 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition"
         >
           Go Home
         </button>
@@ -353,16 +354,16 @@ const Agent = () => {
         ? "text-amber-400"
         : status === "speaking"
           ? "text-emerald-400"
-          : "text-gray-400";
+          : "text-gray-500 dark:text-gray-400";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-white flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-gradient-to-b dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 text-gray-900 dark:text-white flex flex-col">
       {/* Header */}
-      <header className="relative flex items-center justify-between px-4 sm:px-8 py-4 border-b border-white/10">
+      <header className="relative flex items-center justify-between px-4 sm:px-8 py-4 border-b border-gray-200 dark:border-white/10">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(`/${profileId}`)}
-            className="flex items-center gap-2 text-gray-400 hover:text-white transition"
+            className="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
           >
             <ArrowLeft size={18} />
             <span className="text-sm hidden sm:inline">Back to Profile</span>
@@ -373,7 +374,7 @@ const Agent = () => {
           <Logo size="sm" />
         </div>
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 flex-shrink-0">
+          <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300 dark:border-white/20 flex-shrink-0">
             <AvatarFallback src={profile?.avatar} name={profile?.name ?? ""} textClassName="text-xs" />
           </div>
           <span className="font-medium text-sm hidden sm:inline">
@@ -383,12 +384,13 @@ const Agent = () => {
             <button
               onClick={newConversation}
               title="New conversation"
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition px-2 py-1 rounded hover:bg-white/10"
+              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-900 dark:hover:text-white transition px-2 py-1 rounded hover:bg-gray-100 dark:hover:bg-white/10"
             >
               <RotateCcw size={13} />
               <span className="hidden sm:inline">New chat</span>
             </button>
           )}
+          <GlobalMenu />
         </div>
       </header>
 
@@ -402,12 +404,12 @@ const Agent = () => {
             <h2 className="text-xl font-semibold">
               Hi! I'm {profile?.name}'s AI representative
             </h2>
-            <p className="text-gray-400 max-w-md text-sm">
+            <p className="text-gray-500 dark:text-gray-400 max-w-md text-sm">
               {profile?.description ||
                 "Ask me anything about their professional background, skills, and experience."}
             </p>
-            <p className="text-xs text-gray-500">
-              Tap the mic to toggle, hold to record, or hold <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-gray-300 font-mono">Space</kbd>
+            <p className="text-xs text-gray-400 dark:text-gray-500">
+              Tap the mic to toggle, hold to record, or hold <kbd className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-300 font-mono">Space</kbd>
             </p>
           </div>
         )}
@@ -423,11 +425,11 @@ const Agent = () => {
             {/* AI response */}
             <div className="flex justify-start gap-3">
               {/* Profile avatar */}
-              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-white/20">
+              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 border border-gray-200 dark:border-white/20">
                 <AvatarFallback src={profile?.avatar} name={profile?.name ?? ""} textClassName="text-xs" />
               </div>
-              <div className="max-w-[75%] bg-white/5 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3">
-                <div className="text-sm prose prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:text-white prose-a:text-primary prose-code:text-primary/90 prose-code:bg-white/10 prose-code:px-1 prose-code:rounded prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
+              <div className="max-w-[75%] bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl rounded-tl-md px-4 py-3">
+                <div className="text-sm prose dark:prose-invert prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-a:text-primary prose-code:text-primary/90 prose-code:bg-gray-200 dark:prose-code:bg-white/10 prose-code:px-1 prose-code:rounded prose-pre:bg-gray-200 dark:prose-pre:bg-white/5 prose-pre:border prose-pre:border-gray-300 dark:prose-pre:border-white/10">
                   <ReactMarkdown>{entry.aiText}</ReactMarkdown>
                 </div>
                 {entry.audioB64 && (
@@ -458,9 +460,9 @@ const Agent = () => {
         {/* Processing indicator */}
         {status === "processing" && (
           <div className="flex justify-start">
-            <div className="bg-white/5 border border-white/10 rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-2">
+            <div className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-2">
               <Loader2 size={16} className="animate-spin text-amber-400" />
-              <span className="text-sm text-gray-400">Thinking...</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Thinking...</span>
             </div>
           </div>
         )}
@@ -479,9 +481,9 @@ const Agent = () => {
       )}
 
       {/* Bottom control */}
-      <div className="border-t border-white/10 px-4 sm:px-8 py-4">
+      <div className="border-t border-gray-200 dark:border-white/10 px-4 sm:px-8 py-4">
         {/* Text input row */}
-        <div className="flex items-center gap-2 mb-4 bg-white/5 border border-white/10 rounded-2xl px-3 py-1.5 focus-within:border-primary/40 transition-colors">
+        <div className="flex items-center gap-2 mb-4 bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl px-3 py-1.5 focus-within:border-primary/40 transition-colors">
           <input
             type="text"
             value={textInput}
@@ -494,7 +496,7 @@ const Agent = () => {
             }}
             placeholder="Type a message…"
             disabled={status === "processing" || status === "recording"}
-            className="flex-1 bg-transparent py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none disabled:opacity-40"
+            className="flex-1 bg-transparent py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none disabled:opacity-40"
           />
           <button
             onClick={sendText}
@@ -578,7 +580,7 @@ const Agent = () => {
                   ? "bg-amber-500/20 cursor-wait"
                   : status === "speaking"
                     ? "bg-emerald-500/20 hover:bg-emerald-500/30"
-                    : "bg-white/10 hover:bg-white/20 hover:scale-105 active:scale-95"
+                    : "bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 hover:scale-105 active:scale-95"
               }
               disabled:opacity-50
             `}

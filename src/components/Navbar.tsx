@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, LogOut, Pencil, UserCircle } from "lucide-react";
+import { Menu, X, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
+import GlobalMenu from "@/components/GlobalMenu";
 import { Profile } from "@/types/profile";
 
 interface NavbarProps {
@@ -14,7 +15,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
-  const { isAuthenticated, profileId: authProfileId, logout } = useAuth();
+  const { isAuthenticated, profileId: authProfileId } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -114,37 +115,26 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
               My Profile
             </button>
           )}
-          {isAuthenticated && profileId && authProfileId === profileId && (
-            <button
-              onClick={() => navigate(`/${profileId}/edit`)}
-              className="nav-link-animated inline-flex items-center gap-1.5"
-            >
-              <Pencil size={16} />
-              Edit Profile
-            </button>
-          )}
-          {isAuthenticated && (
-            <button
-              onClick={() => {
-                logout();
-                navigate("/");
-              }}
-              className="nav-link-animated inline-flex items-center gap-1.5"
-            >
-              <LogOut size={16} />
-              Sign Out
-            </button>
-          )}
+          <GlobalMenu
+            showEditProfile={isAuthenticated && !!profileId && authProfileId === profileId}
+            editProfilePath={profileId ? `/${profileId}/edit` : undefined}
+          />
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          className="md:hidden focus:outline-none"
-          onClick={toggleMobileMenu}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        {/* Mobile right: GlobalMenu + hamburger */}
+        <div className="md:hidden flex items-center gap-2">
+          <GlobalMenu
+            showEditProfile={isAuthenticated && !!profileId && authProfileId === profileId}
+            editProfilePath={profileId ? `/${profileId}/edit` : undefined}
+          />
+          <button
+            className="focus:outline-none"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
@@ -200,31 +190,6 @@ const Navbar: React.FC<NavbarProps> = ({ profileName, profileId, profile }) => {
             >
               <UserCircle size={18} />
               My Profile
-            </button>
-          )}
-          {isAuthenticated && profileId && authProfileId === profileId && (
-            <button
-              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
-              onClick={() => {
-                navigate(`/${profileId}/edit`);
-                setMobileMenuOpen(false);
-              }}
-            >
-              <Pencil size={18} />
-              Edit Profile
-            </button>
-          )}
-          {isAuthenticated && (
-            <button
-              className="py-2 text-left inline-flex items-center gap-2 border-t border-gray-100 dark:border-gray-800"
-              onClick={() => {
-                logout();
-                navigate("/");
-                setMobileMenuOpen(false);
-              }}
-            >
-              <LogOut size={18} />
-              Sign Out
             </button>
           )}
         </nav>

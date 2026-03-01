@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, User, Loader2, MessageCircle, LogOut, Sparkles } from "lucide-react";
+import { Search, User, Loader2, MessageCircle, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiUrl } from "@/lib/api";
 import Logo from "@/components/Logo";
 import AvatarFallback from "@/components/AvatarFallback";
+import GlobalMenu from "@/components/GlobalMenu";
 
 interface ProfileCard {
   id: string;
@@ -41,7 +42,7 @@ function ProfileCardComponent({
   return (
     <button
       onClick={onClick}
-      className="group w-full text-left bg-white hover:bg-gray-50 border border-gray-200 hover:border-primary/40 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5"
+      className="group w-full text-left bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/8 border border-gray-200 dark:border-white/10 hover:border-primary/40 rounded-2xl p-5 transition-all duration-200 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5"
     >
       <div className="flex items-start gap-4">
         {/* Avatar */}
@@ -52,7 +53,7 @@ function ProfileCardComponent({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-semibold text-gray-900 text-base leading-tight truncate group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-base leading-tight truncate group-hover:text-primary transition-colors">
               {card.name}
             </h3>
             {card.voice_id && (
@@ -88,7 +89,7 @@ function ProfileCardComponent({
               {card.skills.map((s) => (
                 <span
                   key={s}
-                  className="text-[10px] text-gray-500 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5"
+                  className="text-[10px] text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 rounded-full px-2 py-0.5"
                 >
                   {s}
                 </span>
@@ -103,7 +104,7 @@ function ProfileCardComponent({
 
 const Landing = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, profileId, logout, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, profileId, isLoading: authLoading } = useAuth();
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ProfileCard[]>([]);
@@ -188,47 +189,22 @@ const Landing = () => {
   const showEmpty = searched && !searching && !hasResults;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 text-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 text-gray-900 dark:text-white flex flex-col">
       {/* Top bar */}
-      <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-gray-200">
+      <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-gray-200 dark:border-white/10">
         <Logo size="md" />
 
         <div className="flex items-center gap-3">
-          {!authLoading && (
-            isAuthenticated && profileId ? (
-              <>
-                <button
-                  onClick={() => navigate(`/${profileId}`)}
-                  className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition px-3 py-1.5 rounded-lg hover:bg-gray-100"
-                >
-                  <User size={15} />
-                  My Profile
-                </button>
-                <button
-                  onClick={() => { logout(); }}
-                  className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition"
-                >
-                  <LogOut size={14} />
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  onClick={() => navigate("/")}
-                  className="text-sm text-gray-500 hover:text-gray-900 transition"
-                >
-                  Sign in
-                </button>
-                <button
-                  onClick={() => navigate("/create")}
-                  className="text-sm bg-primary text-primary-foreground px-4 py-1.5 rounded-lg hover:opacity-90 transition"
-                >
-                  Create Profile
-                </button>
-              </>
-            )
+          {!authLoading && isAuthenticated && profileId && (
+            <button
+              onClick={() => navigate(`/${profileId}`)}
+              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              <User size={15} />
+              My Profile
+            </button>
           )}
+          <GlobalMenu />
         </div>
       </header>
 
@@ -261,7 +237,7 @@ const Landing = () => {
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && activeSearch(query)}
               placeholder="e.g. Python, machine learning, full stack..."
-              className="w-full bg-white border border-gray-300 focus:border-primary/60 text-gray-900 placeholder-gray-400 rounded-2xl pl-11 pr-12 py-4 text-sm outline-none transition-all duration-200 focus:bg-white focus:shadow-lg focus:shadow-primary/10"
+              className="w-full bg-white dark:bg-white/5 border border-gray-300 dark:border-white/10 focus:border-primary/60 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-2xl pl-11 pr-12 py-4 text-sm outline-none transition-all duration-200 focus:shadow-lg focus:shadow-primary/10"
             />
             {searching ? (
               <Loader2
@@ -285,7 +261,7 @@ const Landing = () => {
                 <button
                   key={s}
                   onClick={() => handleSuggestion(s)}
-                  className="text-xs text-gray-500 border border-gray-300 hover:border-primary/40 hover:text-primary rounded-full px-3 py-1.5 transition-all"
+                  className="text-xs text-gray-500 dark:text-gray-400 border border-gray-300 dark:border-white/10 hover:border-primary/40 hover:text-primary rounded-full px-3 py-1.5 transition-all"
                 >
                   {s}
                 </button>
