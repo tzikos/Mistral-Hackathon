@@ -72,7 +72,10 @@ const Auth = () => {
       <div className="w-full max-w-md text-center mb-8">
         <Logo size="lg" className="block mb-2" />
         <p className="text-muted-foreground text-sm">
-          Your AI-powered professional profile
+          An app powered by{" "}
+          <span className="font-medium bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Mistral</span>
+          {" × "}
+          <span className="font-medium bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent">ElevenLabs</span>
         </p>
       </div>
 

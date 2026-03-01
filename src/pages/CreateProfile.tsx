@@ -345,15 +345,42 @@ function FileUpload({
 // ── CV progress overlay ─────────────────────────────────────
 
 const CV_STAGES = [
-  { label: "Uploading CV...", target: 15 },
+  { label: "Uploading your CV...", target: 15 },
   { label: "Running OCR on document...", target: 40 },
   { label: "Extracting profile data with AI...", target: 75 },
   { label: "Finalizing your profile...", target: 95 },
 ];
 
+// Fun texts that cycle while stuck near 99%
+const CV_FUN_TEXTS = [
+  "Teaching the AI to read your handwriting... 🤓",
+  "Convincing Mistral your experience is impressive...",
+  "Counting your achievements (this may take a while)...",
+  "Cross-referencing with the LinkedIn database... just kidding 😅",
+  "Making sure your skills section doesn't brag too much...",
+  "Running spell-check on your ambitions...",
+  "Asking ElevenLabs to narrate your career story...",
+  "Polishing your professional persona...",
+  "Almost there — good things take time ✨",
+  "Negotiating your salary history with the AI...",
+  "Fact-checking your 'proficient in Excel' claim...",
+  "Translating corporate buzzwords into human speech...",
+];
+
 function CvProgressOverlay() {
   const [progress, setProgress] = useState(0);
   const [stageIdx, setStageIdx] = useState(0);
+  const [funTextIdx, setFunTextIdx] = useState(0);
+  const [showFunText, setShowFunText] = useState(false);
+
+  // Cycle fun texts every 2.8s once we're in the "creeping" phase
+  useEffect(() => {
+    if (!showFunText) return;
+    const id = setInterval(() => {
+      setFunTextIdx((i) => (i + 1) % CV_FUN_TEXTS.length);
+    }, 2800);
+    return () => clearInterval(id);
+  }, [showFunText]);
 
   useEffect(() => {
     let frame: number;
@@ -361,41 +388,51 @@ function CvProgressOverlay() {
 
     // Total simulated duration ~12s across all stages
     const stageDurations = [1200, 3000, 5000, 2800];
+    const totalStagedMs = stageDurations.reduce((a, b) => a + b, 0);
 
     const tick = (timestamp: number) => {
       if (!start) start = timestamp;
       const elapsed = timestamp - start;
 
-      // Figure out which stage we're in and interpolate
-      let accumulated = 0;
-      let currentStage = 0;
-      let stageProgress = 0;
+      if (elapsed < totalStagedMs) {
+        // Normal staged phase: 0 → 95%
+        let accumulated = 0;
+        let currentStage = 0;
+        let stageProgress = 0;
 
-      for (let i = 0; i < stageDurations.length; i++) {
-        if (elapsed < accumulated + stageDurations[i]) {
-          currentStage = i;
-          stageProgress = (elapsed - accumulated) / stageDurations[i];
-          break;
+        for (let i = 0; i < stageDurations.length; i++) {
+          if (elapsed < accumulated + stageDurations[i]) {
+            currentStage = i;
+            stageProgress = (elapsed - accumulated) / stageDurations[i];
+            break;
+          }
+          accumulated += stageDurations[i];
+          if (i === stageDurations.length - 1) {
+            currentStage = i;
+            stageProgress = 1;
+          }
         }
-        accumulated += stageDurations[i];
-        if (i === stageDurations.length - 1) {
-          currentStage = i;
-          stageProgress = 1;
-        }
+
+        setStageIdx(currentStage);
+        setShowFunText(false);
+
+        const prevTarget = currentStage > 0 ? CV_STAGES[currentStage - 1].target : 0;
+        const currTarget = CV_STAGES[currentStage].target;
+        const eased = 1 - Math.pow(1 - Math.min(stageProgress, 1), 2);
+        const pct = prevTarget + (currTarget - prevTarget) * eased;
+        setProgress(Math.min(pct, 95));
+      } else {
+        // Creeping phase: 95 → 99% over ~60s, asymptotically
+        const creepElapsed = elapsed - totalStagedMs;
+        const creepDuration = 60_000;
+        const t = Math.min(creepElapsed / creepDuration, 1);
+        // Logarithmic creep: fast at start, nearly stops near end
+        const creep = 4 * (1 - Math.pow(1 - t, 0.15));
+        setProgress(95 + creep);
+        setShowFunText(true);
       }
 
-      setStageIdx(currentStage);
-
-      const prevTarget = currentStage > 0 ? CV_STAGES[currentStage - 1].target : 0;
-      const currTarget = CV_STAGES[currentStage].target;
-      // Ease-out curve for natural feel
-      const eased = 1 - Math.pow(1 - Math.min(stageProgress, 1), 2);
-      const pct = prevTarget + (currTarget - prevTarget) * eased;
-      setProgress(Math.min(pct, 95));
-
-      if (elapsed < accumulated + stageDurations[currentStage]) {
-        frame = requestAnimationFrame(tick);
-      }
+      frame = requestAnimationFrame(tick);
     };
 
     frame = requestAnimationFrame(tick);
@@ -414,21 +451,21 @@ function CvProgressOverlay() {
 
   let piePath = "";
   if (progress >= 100) {
-    // Full circle as closed path
     piePath = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.001} ${cy - r} Z`;
   } else if (progress > 0) {
     piePath = `M ${cx} ${cy} L ${cx} ${cy - r} A ${r} ${r} 0 ${largeArc} 1 ${endX} ${endY} Z`;
   }
 
+  const label = showFunText
+    ? CV_FUN_TEXTS[funTextIdx]
+    : CV_STAGES[stageIdx].label;
+
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
       <div className="relative w-36 h-36 mb-6">
         <svg className="w-full h-full" viewBox="0 0 120 120">
-          {/* Background circle */}
           <circle cx={cx} cy={cy} r={r} fill="#f3f4f6" />
-          {/* Filled pie slice */}
           {piePath && <path d={piePath} fill="#FA520F" />}
-          {/* Inner white circle for donut effect */}
           <circle cx={cx} cy={cy} r="38" fill="white" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
@@ -438,8 +475,14 @@ function CvProgressOverlay() {
         </div>
       </div>
       <h2 className="text-xl font-semibold mb-2">Analyzing your CV</h2>
-      <p className="text-muted-foreground text-sm transition-opacity duration-300">
-        {CV_STAGES[stageIdx].label}
+      <p className="text-muted-foreground text-sm text-center max-w-xs min-h-[1.5rem] transition-opacity duration-500">
+        {label}
+      </p>
+      <p className="mt-6 text-xs text-muted-foreground/50">
+        Powered by{" "}
+        <span className="font-medium" style={{ color: '#FA520F' }}>Mistral</span>
+        {" × "}
+        <span className="font-medium text-purple-500">ElevenLabs</span>
       </p>
     </div>
   );

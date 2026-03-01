@@ -228,7 +228,13 @@ const Landing = () => {
       {/* Hero + search */}
       <div className="flex flex-col items-center px-4 pt-20 pb-10">
         <div className="text-center mb-10 animate-fade-in">
-          <Logo size="lg" text="FindMe" className="block mb-4" />
+          <Logo size="lg" text="FindMe" className="block mb-2" />
+          <p className="text-sm text-muted-foreground/70 mb-4">
+            An app powered by{" "}
+            <span className="font-medium" style={{ color: '#FA520F' }}>Mistral</span>
+            {" × "}
+            <span className="font-medium text-purple-500">ElevenLabs</span>
+          </p>
           <p className="text-gray-500 text-base sm:text-lg max-w-md mx-auto">
             Search by skills, role, experience, or anything else across all profiles
           </p>
