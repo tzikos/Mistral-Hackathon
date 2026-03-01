@@ -3,6 +3,7 @@ import { ChevronDown, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Profile } from "@/types/profile";
 import AvatarFallback from "@/components/AvatarFallback";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeroProps {
   profile: Profile;
@@ -11,6 +12,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ profile }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -101,13 +103,15 @@ const Hero: React.FC<HeroProps> = ({ profile }) => {
           </p>
 
           <div className="animate-on-scroll opacity-0 transition-opacity duration-1000 delay-700 flex flex-col sm:flex-row justify-center gap-4 mt-8">
-            <button
-              onClick={() => navigate(`/${profile.id}/agent`)}
-              className="px-8 py-3 bg-primary text-primary-foreground rounded-md btn-glow transition-colors duration-300 inline-flex items-center justify-center gap-2"
-            >
-              <MessageCircle size={20} />
-              Talk with {profile.name.split(" ")[0]}
-            </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => navigate(`/${profile.id}/agent`)}
+                className="px-8 py-3 bg-primary text-primary-foreground rounded-md btn-glow transition-colors duration-300 inline-flex items-center justify-center gap-2"
+              >
+                <MessageCircle size={20} />
+                Talk with {profile.name.split(" ")[0]}
+              </button>
+            )}
             <button
               onClick={scrollToAbout}
               className="px-8 py-3 border border-primary/20 rounded-md hover:bg-secondary transition-all duration-300 glow-effect"

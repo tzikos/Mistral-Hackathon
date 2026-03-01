@@ -14,6 +14,7 @@ const Auth = () => {
   const [mode, setMode] = useState<Mode>("signin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { login, register, isAuthenticated, isLoading, profileId } = useAuth();
@@ -35,6 +36,7 @@ const Auth = () => {
   const resetForm = () => {
     setUsername("");
     setPassword("");
+    setConfirmPassword("");
     setError(null);
   };
 
@@ -63,6 +65,10 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setSubmitting(true);
     try {
       const newProfileId = await register(username, password);
@@ -196,6 +202,22 @@ const Auth = () => {
                   required
                   minLength={6}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat your password"
+                  required
+                  minLength={6}
+                  className={confirmPassword && confirmPassword !== password ? "border-red-400 focus-visible:ring-red-400" : ""}
+                />
+                {confirmPassword && confirmPassword !== password && (
+                  <p className="text-xs text-red-500">Passwords do not match.</p>
+                )}
               </div>
 
               {error && <p className="text-sm text-red-500 text-center">{error}</p>}

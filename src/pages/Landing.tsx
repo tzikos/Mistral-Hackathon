@@ -192,7 +192,7 @@ const Landing = () => {
     <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950 text-gray-900 dark:text-white flex flex-col">
       {/* Top bar */}
       <header className="flex items-center justify-between px-6 sm:px-10 py-5 border-b border-gray-200 dark:border-white/10">
-        <Logo size="md" />
+        <Logo size="md" text="FindMe" />
 
         <div className="flex items-center gap-3">
           {!authLoading && isAuthenticated && profileId && (

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Menu, Sun, Moon, Pencil, LogOut } from "lucide-react";
+import { Menu, Sun, Moon, Pencil, LogOut, LogIn } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -67,18 +67,24 @@ const GlobalMenu: React.FC<GlobalMenuProps> = ({
             </>
           )}
 
-          {/* Sign Out */}
-          {isAuthenticated && (
-            <>
-              <div className="mx-3 my-1 border-t border-gray-100 dark:border-white/10" />
-              <button
-                onClick={() => { logout(); navigate("/"); setOpen(false); }}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
-              >
-                <LogOut size={15} />
-                Sign out
-              </button>
-            </>
+          {/* Sign In / Sign Out */}
+          <div className="mx-3 my-1 border-t border-gray-100 dark:border-white/10" />
+          {isAuthenticated ? (
+            <button
+              onClick={() => { logout(); navigate("/"); setOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+            >
+              <LogOut size={15} />
+              Sign out
+            </button>
+          ) : (
+            <button
+              onClick={() => { navigate("/"); setOpen(false); }}
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+            >
+              <LogIn size={15} />
+              Sign in
+            </button>
           )}
         </div>
       )}

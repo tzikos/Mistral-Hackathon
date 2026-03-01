@@ -77,22 +77,8 @@ const App = () => (
             <Route path="/" element={<Auth />} />
             <Route path="/auth" element={<Navigate to="/" replace />} />
             <Route path="/create" element={<Navigate to="/" replace />} />
-            <Route
-              path="/search"
-              element={
-                <ProtectedRoute>
-                  <Landing />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/:profileId"
-              element={
-                <AuthRequiredRoute>
-                  <Index />
-                </AuthRequiredRoute>
-              }
-            />
+            <Route path="/search" element={<Landing />} />
+            <Route path="/:profileId" element={<Index />} />
             <Route
               path="/:profileId/edit"
               element={
