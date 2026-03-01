@@ -1,10 +1,25 @@
+def _text(item, key: str = "title", *fallback_keys: str) -> str | None:
+    """Get text from item that may be a dict or plain string (e.g. from CV parsing)."""
+    if item is None:
+        return None
+    if isinstance(item, str):
+        return item if item.strip() else None
+    if isinstance(item, dict):
+        for k in (key,) + fallback_keys:
+            v = item.get(k)
+            if v and isinstance(v, str):
+                return v
+        return None
+    return None
+
+
 def _score(data: dict, tokens: list[str]) -> int:
     """Score a single profile against a list of query tokens."""
     total = 0
 
     def add(text: str | None, weight: int) -> None:
         nonlocal total
-        if not text:
+        if not text or not isinstance(text, str):
             return
         tl = text.lower()
         for t in tokens:
@@ -18,29 +33,29 @@ def _score(data: dict, tokens: list[str]) -> int:
 
     about = data.get("about") or {}
     for skill in about.get("skills") or []:
-        add(skill, 8)
+        add(_text(skill, "title", "name"), 8)
     for para in about.get("bio") or []:
-        add(para, 2)
+        add(para if isinstance(para, str) else None, 2)
     for exp in about.get("expertise") or []:
-        add(exp.get("title"), 6)
-        add(exp.get("description"), 3)
+        add(_text(exp, "title"), 6)
+        add(_text(exp, "description"), 3)
     for edu in about.get("education") or []:
-        add(edu.get("degree"), 4)
-        add(edu.get("institution"), 3)
+        add(_text(edu, "degree"), 4)
+        add(_text(edu, "institution"), 3)
     for cert in about.get("certifications") or []:
-        add(cert.get("title"), 4)
+        add(_text(cert, "title"), 4)
 
     portfolio = data.get("portfolio") or {}
     for work in portfolio.get("workExperience") or []:
-        add(work.get("title"), 5)
-        add(work.get("description"), 3)
+        add(_text(work, "title"), 5)
+        add(_text(work, "description"), 3)
         for tag in work.get("tags") or []:
-            add(tag, 6)
+            add(_text(tag, "title", "name"), 6)
     for proj in portfolio.get("projects") or []:
-        add(proj.get("title"), 4)
-        add(proj.get("description"), 3)
+        add(_text(proj, "title"), 4)
+        add(_text(proj, "description"), 3)
         for tag in proj.get("tags") or []:
-            add(tag, 5)
+            add(_text(tag, "title", "name"), 5)
 
     return total
 
