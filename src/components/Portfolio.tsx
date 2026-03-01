@@ -113,9 +113,13 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
     };
   }, []);
 
+  const hasProjects = portfolio.projects.length > 0;
+  const hasWorkExperience = portfolio.workExperience.length > 0;
+  const hasTalks = portfolio.talksAndAwards.length > 0;
+
   return (
     <>
-      <section
+      {hasProjects && <section
         id="data"
         ref={dataSectionRef}
         className="py-20 md:py-28 bg-secondary/50"
@@ -169,9 +173,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
             )}
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section
+      {hasWorkExperience && <section
         id="experience"
         ref={workSectionRef}
         className="py-20 md:py-28 bg-white dark:bg-gray-950"
@@ -223,9 +227,9 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
             )}
           </div>
         </div>
-      </section>
+      </section>}
 
-      <section
+      {hasTalks && <section
         id="talks"
         className="py-20 md:py-28 bg-white dark:bg-gray-950"
       >
@@ -255,7 +259,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ profile }) => {
             </div>
           </div>
         </div>
-      </section>
+      </section>}
 
     </>
   );
