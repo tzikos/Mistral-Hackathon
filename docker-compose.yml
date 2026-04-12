@@ -1,0 +1,52 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: askmestral-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - ENV=production
+      - PORT=9122
+    volumes:
+      - uploads_data:/app/uploads
+    # No "ports:" — backend is internal only
+    expose:
+      - "9122"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9122/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  nginx:
+    image: nginx:alpine
+    container_name: askmestral-nginx
+    restart: unless-stopped
+    ports:
+      - "9123:9123"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - frontend_build:/usr/share/nginx/html:ro
+    depends_on:
+      frontend:
+        condition: service_completed_successfully
+      backend:
+        condition: service_started
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: askmestral-frontend
+    volumes:
+      - frontend_build:/output
+    # Copy built files to shared volume, then exit
+    entrypoint: ["/bin/sh", "-c", "cp -r /usr/share/nginx/html/* /output/ && echo 'Frontend build copied'"]
+
+volumes:
+  uploads_data:
+  frontend_build:
