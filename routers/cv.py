@@ -1,3 +1,4 @@
+import base64
 import logging
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
@@ -34,18 +35,13 @@ async def parse_cv(profile_id: str, file: UploadFile = File(...)):
 
     try:
         from mistralai.models import OCRResponse
-        from mistralai.models.file import File as MistralFile
 
-        # Upload to Mistral for OCR
-        uploaded_file = client.files.upload(
-            file=MistralFile(content=contents, file_name=filename),
-            purpose="ocr",
-        )
-        file_id = uploaded_file.id
+        b64_pdf = base64.b64encode(contents).decode("utf-8")
+        data_url = f"data:application/pdf;base64,{b64_pdf}"
 
         ocr_response: OCRResponse = client.ocr.process(
             model="mistral-ocr-latest",
-            document={"type": "file", "file_id": file_id},
+            document={"type": "document_url", "document_url": data_url},
         )
 
         cv_text = "\n\n".join(page.markdown for page in ocr_response.pages)
@@ -66,12 +62,6 @@ async def parse_cv(profile_id: str, file: UploadFile = File(...)):
 
         parsed: ParsedCVProfile = chat_response.choices[0].message.parsed
         parsed.links.cv = cv_url
-
-        # Cleanup Mistral file
-        try:
-            client.files.delete(file_id=file_id)
-        except Exception:
-            logger.warning("Failed to delete Mistral file %s", file_id)
 
         return parsed.model_dump()
 
